@@ -1,7 +1,7 @@
 <aside class="w-64 h-screen bg-gray-800 text-white flex flex-col">
     <!-- Logo / Nama Aplikasi -->
-    <div class="p-4 text-2xl font-bold border-b border-gray-700">
-        {{ config('app.name', 'Laravel') }}
+    <div class="p-4 text-2xl font-bold border-b border-green-700">
+        {{ config('Kerinci', 'Kerinci') }}
     </div>
 
     <!-- Navigasi Sidebar -->
@@ -10,13 +10,13 @@
             Dashboard
         </a>
         <a href="{{ route('data_pelanggan.index') }}" class="block p-2 rounded hover:bg-gray-700">
-            Data Pelanggan
+            Customer
         </a>
         <a href="{{ route('data_pengguna.index') }}" class="block p-2 rounded hover:bg-gray-700">
-            Data Pengguna
+            Users
         </a>
-        <a href="{{ route('laporan.index') }}" class="block p-2 rounded hover:bg-gray-700">
-            Laporan
+        <a href="{{ route('transaksi.index') }}" class="block p-2 rounded hover:bg-gray-700">
+        Transaction
         </a>
         <a href="{{ route('loyalty_program.index') }}" class="block p-2 rounded hover:bg-gray-700">
             Loyalty Program
@@ -25,10 +25,10 @@
             Menu
         </a>
         <a href="{{ route('stok.index') }}" class="block p-2 rounded hover:bg-gray-700">
-            Stok
+            Stock
         </a>
-        <a href="{{ route('transaksi_penjualan.index') }}" class="block p-2 rounded hover:bg-gray-700">
-            Transaksi Penjualan
+        <a href="{{ route('laporan.index') }}" class="block p-2 rounded hover:bg-gray-700">
+            Report
         </a>
     </nav>
 

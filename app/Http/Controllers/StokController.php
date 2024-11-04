@@ -21,39 +21,35 @@ class StokController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ID_PRODUK' => 'required|string|max:10|unique:stok,ID_PRODUK',
-            'NAMA_PRODUK' => 'required|string|max:25',
-            'QTY' => 'required|integer',
-            'STATUS' => 'required|string|max:25',
+            'nama_stok' => 'required',
+            'jumlah_stok' => 'required|integer',
+            'harga_menu' => 'required|numeric',
         ]);
 
         Stok::create($request->all());
-        return redirect()->route('stok.index')->with('success', 'Stok berhasil ditambahkan.');
+        return redirect()->route('stok.index')->with('success', 'Stok berhasil ditambahkan');
     }
 
-    public function edit($id)
+    public function edit(Stok $stok)
     {
-        $stok = Stok::findOrFail($id);
         return view('stok.edit', compact('stok'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Stok $stok)
     {
         $request->validate([
-            'NAMA_PRODUK' => 'required|string|max:25',
-            'QTY' => 'required|integer',
-            'STATUS' => 'required|string|max:25',
+            'nama_stok' => 'required',
+            'jumlah_stok' => 'required|integer',
+            'harga_menu' => 'required|numeric',
         ]);
 
-        $stok = Stok::findOrFail($id);
         $stok->update($request->all());
-        return redirect()->route('stok.index')->with('success', 'Stok berhasil diperbarui.');
+        return redirect()->route('stok.index')->with('success', 'Stok berhasil diperbarui');
     }
 
-    public function destroy($id)
+    public function destroy(Stok $stok)
     {
-        $stok = Stok::findOrFail($id);
         $stok->delete();
-        return redirect()->route('stok.index')->with('success', 'Stok berhasil dihapus.');
+        return redirect()->route('stok.index')->with('success', 'Stok berhasil dihapus');
     }
 }

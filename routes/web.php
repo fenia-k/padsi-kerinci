@@ -11,7 +11,8 @@ use App\Http\Controllers\LoyaltyProgramController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StokController;
-use App\Http\Controllers\TransaksiPenjualanController;
+use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\DiskonController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,10 +25,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Halaman utama
+// Halaman utama (login page)
 Route::get('/', function () {
     return view('login');
-});
+})->name('login');
 
 // Halaman dashboard utama, hanya bisa diakses setelah login dan verifikasi
 Route::middleware(['auth', 'verified'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -37,8 +38,11 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->group(function () {
     Route::get('/dashboard', [OwnerController::class, 'index'])->name('owner.dashboard');
     
     // Rute khusus untuk data master yang hanya dapat diakses oleh owner
-    Route::resource('data_pengguna', DataPenggunaController::class);
-    Route::resource('laporan', LaporanController::class);
+    Route::prefix('data_master')->group(function () {
+        Route::resource('data_pengguna', DataPenggunaController::class);
+        Route::resource('laporan', LaporanController::class);
+        Route::resource('role', RoleController::class);
+    });
 });
 
 // Grup Rute untuk Pegawai
@@ -47,23 +51,21 @@ Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->group(function (
     // Tambahkan rute lain khusus untuk pegawai di sini jika diperlukan
 });
 
-// Rute untuk Pengelolaan Profil Pengguna yang Sudah Login
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+// // Rute untuk Pengelolaan Profil Pengguna yang Sudah Login
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// });
 
-// Rute Resource untuk Data Master Umum yang Bisa Diakses Semua Pengguna Terverifikasi
-Route::middleware(['auth', 'verified'])->group(function () {
+// Grup Rute untuk Data Master Umum yang Bisa Diakses Semua Pengguna Terverifikasi
+Route::middleware(['auth', 'verified'])->prefix('data_master')->group(function () {
     Route::resource('data_pelanggan', DataPelangganController::class);
     Route::resource('loyalty_program', LoyaltyProgramController::class);
     Route::resource('menu', MenuController::class);
     Route::resource('stok', StokController::class);
-    Route::resource('transaksi_penjualan', TransaksiPenjualanController::class);
-    
-    // Rute "role" jika memiliki akses CRUD, hanya untuk owner
-    Route::middleware('role:owner')->resource('role', RoleController::class);
+    Route::resource('transaksi', TransaksiController::class);
+    Route::resource('diskon', DiskonController::class); // Tambahkan rute diskon
 });
 
 // Sertakan rute autentikasi default (login, register, dll.)

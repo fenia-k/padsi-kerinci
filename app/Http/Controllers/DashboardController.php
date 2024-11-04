@@ -10,7 +10,7 @@ use App\Models\LoyaltyProgram;
 use App\Models\Menu;
 use App\Models\Role;
 use App\Models\Stok;
-use App\Models\TransaksiPenjualan;
+use App\Models\Transaksi;
 
 class DashboardController extends Controller
 {
@@ -24,7 +24,7 @@ class DashboardController extends Controller
             'menu' => Menu::all(),
             'role' => Role::all(),
             'stok' => Stok::all(),
-            'transaksi_penjualan' => TransaksiPenjualan::all(),
+            'transaksi' => Transaksi::all(),
         ]);
     }
 }

@@ -4,28 +4,24 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateMenuTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
     {
         Schema::create('menu', function (Blueprint $table) {
-            $table->char('ID_MENU', 10)->primary();
-            $table->string('NAMA_MENU', 25);
-            $table->string('DESKRIPSI_MENU', 100);
-            $table->float('HARGA_MENU');
+            $table->id(); // Auto-increment ID
+            $table->string('nama_menu');
+            $table->decimal('harga_menu', 10, 2);
+            $table->integer('jumlah_menu');
+            $table->string('deskripsi_menu');
+            $table->string('gambar_menu');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
-    
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('menu');
     }
-};
+}

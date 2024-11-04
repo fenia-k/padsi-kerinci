@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
     {
         // Buat akun owner
         User::create([
-            'name' => 'Owner User',
+            'name' => 'Owner',
             'email' => 'owner@gmail.com',
             'password' => Hash::make('password'), // ganti dengan password yang aman
             'role' => 'owner',
@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
 
         // Buat akun pegawai
         User::create([
-            'name' => 'Pegawai User',
+            'name' => 'Pegawai',
             'email' => 'pegawai@gmail.com',
             'password' => Hash::make('password'), // ganti dengan password yang aman
             'role' => 'pegawai',

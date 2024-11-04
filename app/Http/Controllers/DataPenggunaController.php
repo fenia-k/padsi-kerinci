@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataPengguna;
+use App\Models\Role;
 use Illuminate\Http\Request;
 
 class DataPenggunaController extends Controller
@@ -15,48 +16,45 @@ class DataPenggunaController extends Controller
 
     public function create()
     {
-        return view('data_pengguna.create');
+        $roles = Role::all(['id', 'nama_role']);
+        return view('data_pengguna.create', compact('roles'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'ID_PENGGUNA' => 'required|string|max:10|unique:data_pengguna,ID_PENGGUNA',
-            'ID_ROLE' => 'required|string|max:8',
-            'NOHP_PENGGUNA' => 'required|string|max:15',
-            'ALAMAT_PENGGUNA' => 'required|string|max:100',
-            'NAMA_PENGGUNA' => 'required|string|max:50',
-            'PASSWORD' => 'required|string|max:100',
+            'nama_pengguna' => 'required',
+            'alamat_pengguna' => 'required',
+            'noHP_pengguna' => 'required',
+            'id_role' => 'required|exists:role,id',
         ]);
 
         DataPengguna::create($request->all());
-        return redirect()->route('data_pengguna.index')->with('success', 'Data pengguna berhasil ditambahkan.');
+        return redirect()->route('data_pengguna.index')->with('success', 'Data pengguna berhasil ditambahkan');
     }
 
-    public function edit($id)
+    public function edit(DataPengguna $dataPengguna)
     {
-        $dataPengguna = DataPengguna::findOrFail($id);
-        return view('data_pengguna.edit', compact('dataPengguna'));
+        $roles = Role::all(['id', 'nama_role']);
+        return view('data_pengguna.edit', compact('dataPengguna', 'roles'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, DataPengguna $dataPengguna)
     {
         $request->validate([
-            'ID_ROLE' => 'required|string|max:8',
-            'NOHP_PENGGUNA' => 'required|string|max:15',
-            'ALAMAT_PENGGUNA' => 'required|string|max:100',
-            'NAMA_PENGGUNA' => 'required|string|max:50',
+            'nama_pengguna' => 'required',
+            'alamat_pengguna' => 'required',
+            'noHP_pengguna' => 'required',
+            'id_role' => 'required|exists:roles,id',
         ]);
 
-        $dataPengguna = DataPengguna::findOrFail($id);
         $dataPengguna->update($request->all());
-        return redirect()->route('data_pengguna.index')->with('success', 'Data pengguna berhasil diperbarui.');
+        return redirect()->route('data_pengguna.index')->with('success', 'Data pengguna berhasil diperbarui');
     }
 
-    public function destroy($id)
+    public function destroy(DataPengguna $dataPengguna)
     {
-        $dataPengguna = DataPengguna::findOrFail($id);
         $dataPengguna->delete();
-        return redirect()->route('data_pengguna.index')->with('success', 'Data pengguna berhasil dihapus.');
+        return redirect()->route('data_pengguna.index')->with('success', 'Data pengguna berhasil dihapus');
     }
 }

@@ -2,24 +2,34 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DataPelanggan extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
     protected $table = 'data_pelanggan';
-    protected $primaryKey = 'ID_PELANGGAN';
-    public $incrementing = false; // Karena primary key bukan integer
-    protected $keyType = 'string';
 
     protected $fillable = [
-        'ID_PELANGGAN', 
-        'ID_RUJUKAN', 
-        'NAMA_PELANGGAN', 
-        'NOHP_PELANGGAN', 
-        'ALAMAT_PELANGGAN', 
-        'KODE_REFERRAL'
+        'nama_pelanggan', 'alamat_pelanggan', 'noHP_pelanggan', 'kode_referal'
     ];
+
+    // Relasi dengan Diskon
+    public function diskon()
+    {
+        return $this->hasMany(Diskon::class, 'id_pelanggan');
+    }
+
+    // Relasi dengan LoyaltyProgram
+    public function loyaltyProgram()
+    {
+        return $this->hasMany(LoyaltyProgram::class, 'id_pelanggan');
+    }
+
+    // Relasi dengan Transaksi
+    public function transaksi()
+    {
+        return $this->hasMany(Transaksi::class, 'id_pelanggan');
+    }
 }

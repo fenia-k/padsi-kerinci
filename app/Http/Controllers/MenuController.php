@@ -9,8 +9,8 @@ class MenuController extends Controller
 {
     public function index()
     {
-        $menu = Menu::all();
-        return view('menu.index', compact('menu'));
+        $menus = Menu::all();
+        return view('menu.index', compact('menus'));
     }
 
     public function create()
@@ -19,41 +19,63 @@ class MenuController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'ID_MENU' => 'required|string|max:10|unique:menu,ID_MENU',
-            'NAMA_MENU' => 'required|string|max:25',
-            'DESKRIPSI_MENU' => 'required|string|max:100',
-            'HARGA_MENU' => 'required|numeric',
-        ]);
+{
+    $request->validate([
+        'nama_menu' => 'required',
+        'harga_menu' => 'required|numeric',
+        'jumlah_menu' => 'required|integer',
+        'deskripsi_menu' => 'nullable|string',
+        'gambar_menu' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk gambar
+    ]);
 
-        Menu::create($request->all());
-        return redirect()->route('menu.index')->with('success', 'Menu berhasil ditambahkan.');
+    $data = $request->all();
+
+    if ($request->hasFile('gambar_menu')) {
+        $data['gambar_menu'] = $request->file('gambar_menu')->store('menu', 'public');
     }
 
-    public function edit($id)
-    {
-        $menu = Menu::findOrFail($id);
-        return view('menu.edit', compact('menu'));
+    Menu::create($data);
+
+    return redirect()->route('menu.index')->with('success', 'Menu berhasil ditambahkan');
+}
+
+public function edit($id)
+{
+    // Temukan data menu berdasarkan id
+    $menu = Menu::findOrFail($id);
+    
+    // Kirim data menu ke view edit
+    return view('menu.edit', compact('menu'));
+}
+
+public function update(Request $request, Menu $menu)
+{
+    $request->validate([
+        'nama_menu' => 'required',
+        'harga_menu' => 'required|numeric',
+        'jumlah_menu' => 'required|integer',
+        'deskripsi_menu' => 'nullable|string',
+        'gambar_menu' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi untuk gambar
+    ]);
+
+    $data = $request->all();
+
+    if ($request->hasFile('gambar_menu')) {
+        if ($menu->gambar_menu) {
+            Storage::disk('public')->delete($menu->gambar_menu);
+        }
+        $data['gambar_menu'] = $request->file('gambar_menu')->store('menu', 'public');
     }
 
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'NAMA_MENU' => 'required|string|max:25',
-            'DESKRIPSI_MENU' => 'required|string|max:100',
-            'HARGA_MENU' => 'required|numeric',
-        ]);
+    $menu->update($data);
 
-        $menu = Menu::findOrFail($id);
-        $menu->update($request->all());
-        return redirect()->route('menu.index')->with('success', 'Menu berhasil diperbarui.');
-    }
+    return redirect()->route('menu.index')->with('success', 'Menu berhasil diperbarui');
+}
 
-    public function destroy($id)
+
+    public function destroy(Menu $menu)
     {
-        $menu = Menu::findOrFail($id);
         $menu->delete();
-        return redirect()->route('menu.index')->with('success', 'Menu berhasil dihapus.');
+        return redirect()->route('menu.index')->with('success', 'Menu berhasil dihapus');
     }
 }

@@ -11,8 +11,27 @@ export default {
 
     theme: {
         extend: {
+            // Font Family Custom
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            },
+
+            // Warna Kustom
+            colors: {
+                primary: '#3490dc',   // Warna utama
+                secondary: '#ffed4a', // Warna sekunder
+                danger: '#e3342f',    // Warna untuk kesalahan/aksi berbahaya
+            },
+
+            // Breakpoint tambahan
+            screens: {
+                'xs': '475px', // Breakpoint khusus untuk layar ekstra kecil
+            },
+
+            // Pengaturan transition
+            transitionProperty: {
+                'width': 'width',
+                'spacing': 'margin, padding',
             },
         },
     },

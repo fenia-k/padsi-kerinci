@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Stok extends Model
 {
-    use HasFactory;
+    use SoftDeletes;
 
-    // Tentukan nama tabel
     protected $table = 'stok';
 
-    protected $fillable = ['nama_produk', 'jumlah', 'satuan']; // sesuaikan dengan kolom tabel
+    protected $fillable = [
+        'nama_stok', 'jumlah_stok', 'harga_menu'
+    ];
 }
