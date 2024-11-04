@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataPelanggan;
-use App\Models\LoyaltyProgram;
-use App\Models\ReferralLog; // Import model ReferralLog
+use App\Models\LoyaltyProgram; // Model untuk program loyalti
+use App\Models\ReferralLog; // Model untuk log referral
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class DataPelangganController extends Controller
 {
@@ -23,59 +24,57 @@ class DataPelangganController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_pelanggan' => 'required',
-            'alamat_pelanggan' => 'required',
-            'noHP_pelanggan' => 'required',
-            'kode_referal_input' => 'nullable|exists:data_pelanggan,kode_referal', // Validasi kode referral yang diinput (opsional)
+            'nama_pelanggan' => 'required|string|max:255',
+            'alamat_pelanggan' => 'required|string',
+            'noHP_pelanggan' => 'required|string|max:15',
+            'kode_referal_input' => 'nullable|string|exists:data_pelanggan,kode_referal', // Validasi kode referral opsional
         ]);
 
         try {
-            // Ambil 3 huruf pertama dari nama depan pelanggan
+            // Buat kode referral unik untuk pelanggan baru
             $namaDepan = strtoupper(substr(explode(' ', trim($request->nama_pelanggan))[0], 0, 3));
-
-            // Tambahkan 2 karakter acak (angka)
             $kodeReferal = $namaDepan . '-' . mt_rand(10, 99);
 
-            // Simpan data pelanggan dengan kode referral
+            // Simpan data pelanggan baru
             $dataPelanggan = new DataPelanggan();
             $dataPelanggan->nama_pelanggan = $request->nama_pelanggan;
             $dataPelanggan->alamat_pelanggan = $request->alamat_pelanggan;
             $dataPelanggan->noHP_pelanggan = $request->noHP_pelanggan;
             $dataPelanggan->kode_referal = $kodeReferal;
-            $dataPelanggan->poin = 0; // Set default poin untuk pelanggan baru
+            $dataPelanggan->poin = 0; // Default poin awal
             $dataPelanggan->save();
 
-            // Jika ada kode referral yang diinput
+            // Tambahkan program loyalti baru untuk pelanggan
+            LoyaltyProgram::create([
+                'kode_referral' => $kodeReferal,
+                'batas_loyalty' => 5, // Set batas loyalti awal
+                'id_pelanggan' => $dataPelanggan->id,
+            ]);
+
+            // Jika ada kode referral yang diinput, proses rujukan
             if ($request->kode_referal_input) {
-                // Cari pengguna yang memiliki kode referral tersebut
                 $referrer = DataPelanggan::where('kode_referal', $request->kode_referal_input)->first();
 
                 if ($referrer) {
-                    // Tambahkan poin ke referrer
-                    $referralPoints = 50; // Jumlah poin untuk setiap pendaftaran baru yang menggunakan referral
-                    $referrer->increment('poin', $referralPoints);
+                    // Tambahkan 10,000 poin untuk referrer
+                    $referrer->increment('poin', 10000);
 
-                    // Simpan log referral dengan poin yang diberikan
+                    // Log referral
                     ReferralLog::create([
                         'referrer_user_id' => $referrer->id,
-                        'referred_user_id' => $dataPelanggan->id, // ID pengguna baru yang mendaftar
-                        'poin' => $referralPoints,
+                        'referred_user_id' => $dataPelanggan->id,
+                        'poin' => 10000,
                         'used_at' => now(),
                     ]);
+
+                    // Berikan 10,000 poin untuk pelanggan baru
+                    $dataPelanggan->increment('poin', 10000);
                 }
             }
 
-            // Simpan program loyalty otomatis
-            LoyaltyProgram::create([
-                'id_pelanggan' => $dataPelanggan->id,
-                'kode_referral' => $kodeReferal,
-                'diskon' => 5000.00, // Diskon default Rp 5.000
-                'batas_loyalty' => 5, // Batas loyalty default 5x
-            ]);
-
             return redirect()->route('data_pelanggan.index')->with('success', 'Data pelanggan berhasil ditambahkan dengan kode referral: ' . $kodeReferal);
         } catch (\Exception $e) {
-            return redirect()->route('data_pelanggan.index')->with('error', 'Gagal menambahkan data pelanggan');
+            return redirect()->route('data_pelanggan.index')->with('error', 'Gagal menambahkan data pelanggan: ' . $e->getMessage());
         }
     }
 
@@ -87,16 +86,16 @@ class DataPelangganController extends Controller
     public function update(Request $request, DataPelanggan $dataPelanggan)
     {
         $request->validate([
-            'nama_pelanggan' => 'required',
-            'alamat_pelanggan' => 'required',
-            'noHP_pelanggan' => 'required',
+            'nama_pelanggan' => 'required|string|max:255',
+            'alamat_pelanggan' => 'required|string',
+            'noHP_pelanggan' => 'required|string|max:15',
         ]);
 
         try {
             $dataPelanggan->update($request->all());
             return redirect()->route('data_pelanggan.index')->with('success', 'Data pelanggan berhasil diperbarui');
         } catch (\Exception $e) {
-            return redirect()->route('data_pelanggan.index')->with('error', 'Gagal memperbarui data pelanggan');
+            return redirect()->route('data_pelanggan.index')->with('error', 'Gagal memperbarui data pelanggan: ' . $e->getMessage());
         }
     }
 
@@ -106,7 +105,7 @@ class DataPelangganController extends Controller
             $dataPelanggan->delete();
             return redirect()->route('data_pelanggan.index')->with('success', 'Data pelanggan berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->route('data_pelanggan.index')->with('error', 'Gagal menghapus data pelanggan');
+            return redirect()->route('data_pelanggan.index')->with('error', 'Gagal menghapus data pelanggan: ' . $e->getMessage());
         }
     }
 }

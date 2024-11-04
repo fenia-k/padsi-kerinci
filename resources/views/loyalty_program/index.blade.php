@@ -23,7 +23,6 @@
                     <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Pelanggan</th>
                     <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Kode Referral</th>
                     <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Batas Loyalty</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Diskon</th>
                 </tr>
             </thead>
             <tbody class="bg-white">
@@ -32,7 +31,6 @@
                     <td class="px-6 py-4 border-b text-gray-800">{{ $program->pelanggan->nama_pelanggan ?? 'Tidak Ada' }}</td>
                     <td class="px-6 py-4 border-b text-gray-800">{{ $program->kode_referral }}</td>
                     <td class="px-6 py-4 border-b text-gray-800">{{ $program->batas_loyalty }}x</td>
-                    <td class="px-6 py-4 border-b text-gray-800">Rp {{ number_format($program->diskon, 0, ',', '.') }}</td>
                 </tr>
                 @empty
                 <tr>

@@ -12,24 +12,46 @@ class LoyaltyProgram extends Model
     protected $table = 'loyalty_program';
 
     protected $fillable = [
-        'kode_referral', 'batas_loyalty', 'diskon', 'id_pelanggan'
+        'kode_referral',
+        'batas_loyalty',
+        'id_pelanggan',
     ];
 
-    // Relasi dengan DataPelanggan
+    /**
+     * Relasi dengan DataPelanggan
+     * Menghubungkan program loyalti dengan pelanggan
+     */
     public function pelanggan()
     {
         return $this->belongsTo(DataPelanggan::class, 'id_pelanggan');
     }
 
-    // Accessor untuk format diskon (misalnya untuk ditampilkan dalam format Rp)
-    public function getFormattedDiskonAttribute()
+    /**
+     * Relasi dengan Transaksi
+     * Menghubungkan program loyalti dengan transaksi
+     */
+    public function transaksi()
     {
-        return 'Rp ' . number_format($this->diskon, 0, ',', '.');
+        return $this->hasMany(Transaksi::class, 'kode_referal', 'kode_referral');
     }
 
-    // Accessor untuk batas loyalty (misalnya untuk ditampilkan dengan "x")
+    /**
+     * Accessor untuk format batas loyalti
+     * Misalnya untuk ditampilkan dengan "x"
+     */
     public function getFormattedBatasLoyaltyAttribute()
     {
         return $this->batas_loyalty . 'x';
+    }
+
+    /**
+     * Mengurangi batas loyalti
+     * Gunakan fungsi ini ketika kode referral digunakan dalam transaksi
+     */
+    public function reduceLoyalty()
+    {
+        if ($this->batas_loyalty > 0) {
+            $this->decrement('batas_loyalty');
+        }
     }
 }

@@ -66,6 +66,10 @@ Route::middleware(['auth', 'verified'])->prefix('data_master')->group(function (
     Route::resource('stok', StokController::class);
     Route::resource('transaksi', TransaksiController::class);
     Route::resource('diskon', DiskonController::class); // Tambahkan rute diskon
+    Route::get('/referral-report', [DataPelangganController::class, 'referralReport'])->name('referral.report');
+    Route::get('/transaksi/{id}/detail', [TransaksiController::class, 'detail'])->name('transaksi.detail');
+
+
 });
 
 // Sertakan rute autentikasi default (login, register, dll.)

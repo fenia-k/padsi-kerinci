@@ -1,73 +1,115 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto p-6">
-    <h2 class="text-3xl font-semibold text-primary mb-6">Data Transaksi</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center text-primary">Daftar Transaksi</h2>
 
-    <!-- Notifikasi Pesan -->
     @if (session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    @elseif (session('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
             {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    <!-- Button Tambah Data -->
-    <div class="flex justify-end mb-4">
-        <a href="{{ route('transaksi.create') }}" class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
-            + Tambah Transaksi
-        </a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-secondary">Total Transaksi: {{ $transaksi->count() }}</h5>
+        <a href="{{ route('transaksi.create') }}" class="btn btn-primary btn-sm">Tambah Transaksi</a>
     </div>
 
-    <!-- Table -->
-    <div class="bg-white shadow-md rounded-lg overflow-x-auto">
-        <table class="min-w-full table-auto border-collapse border border-gray-200">
-            <thead class="bg-secondary text-gray-800">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-primary">
                 <tr>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Pelanggan</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Pengguna</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Tanggal Transaksi</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Total Harga</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Diskon</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Nominal Akhir</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Kode Referral</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Aksi</th>
+                    <th scope="col" class="text-center">Menu</th>
+                    <th scope="col" class="text-center">Jumlah</th>
+                    <th scope="col" class="text-center">Total Harga</th>
+                    <th scope="col" class="text-center">Tanggal</th>
+                    <th scope="col" class="text-center">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="bg-white">
-                @forelse ($transaksi as $item)
-                <tr class="hover:bg-gray-100 transition-colors duration-200 ease-in-out">
-                    <td class="px-6 py-4 border-b text-gray-800">{{ $item->pelanggan->nama_pelanggan ?? 'Tidak Ada' }}</td>
-                    <td class="px-6 py-4 border-b text-gray-800">{{ $item->pengguna->nama_pengguna ?? 'Tidak Ada' }}</td>
-                    <td class="px-6 py-4 border-b text-gray-800">{{ \Carbon\Carbon::parse($item->tanggal_transaksi)->format('d-m-Y') }}</td>
-                    <td class="px-6 py-4 border-b text-gray-800">Rp {{ number_format($item->total_harga, 2) }}</td>
-                    <td class="px-6 py-4 border-b text-gray-800">Rp {{ number_format($item->diskon ?? 0, 2) }}</td>
-                    <td class="px-6 py-4 border-b text-gray-800">Rp {{ number_format($item->total_harga - ($item->diskon ?? 0), 2) }}</td>
-                    <td class="px-6 py-4 border-b text-gray-800">{{ $item->kode_referal ?? '-' }}</td>
-                    <td class="px-6 py-4 border-b">
-                        <a href="{{ route('transaksi.edit', $item->id) }}" class="text-yellow-500 hover:text-yellow-600 font-semibold px-3 py-1 rounded-lg transition duration-300 ease-in-out">
-                            Edit
-                        </a>
-                        <form action="{{ route('transaksi.destroy', $item->id) }}" method="POST" class="inline-block">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-danger hover:text-red-700 font-semibold px-3 py-1 rounded-lg transition duration-300 ease-in-out"
-                                onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
+            <tbody>
+                @foreach ($transaksi as $trans)
                 <tr>
-                    <td colspan="8" class="text-center px-6 py-4 text-gray-500">
-                        Tidak ada data transaksi yang tersedia.
+                    <td class="text-center">{{ $trans->menu->nama_menu }}</td>
+                    <td class="text-center">{{ $trans->jumlah }}</td>
+                    <td class="text-end text-success">Rp {{ number_format($trans->total_harga, 0, ',', '.') }}</td>
+                    <td class="text-center">{{ \Carbon\Carbon::parse($trans->tanggal_transaksi)->format('d M Y') }}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{{ route('transaksi.detail', $trans->id) }}" class="btn btn-info btn-sm" title="Detail">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        
+                            <form action="{{ route('transaksi.destroy', $trans->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin ingin menghapus?')" title="Hapus" style="min-width: 2.5rem;">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- Bootstrap Icons (optional) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+    .container {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    .table th, .table td {
+        vertical-align: middle;
+    }
+    .table-primary {
+        background-color: #0d6efd;
+        color: #ffffff;
+    }
+    .table-bordered {
+        border-color: #dee2e6;
+    }
+    .btn {
+        border-radius: 5px;
+    }
+    .btn-info {
+        background-color: #0dcaf0;
+        border-color: #0dcaf0;
+        color: #ffffff;
+    }
+    .btn-warning {
+        background-color: #ffc107;
+        border-color: #ffc107;
+        color: #212529;
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: #ffffff;
+    }
+    .btn-primary {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #ffffff;
+    }
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+    }
+    .gap-2 > * {
+        margin-right: 0.5rem; /* Space between buttons */
+    }
+</style>
 @endsection

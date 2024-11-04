@@ -13,7 +13,8 @@ class CreateReferralLogsTable extends Migration
             $table->foreignId('referrer_user_id')->constrained('data_pelanggan')->onDelete('cascade');
             $table->foreignId('referred_user_id')->constrained('data_pelanggan')->onDelete('cascade');
             $table->foreignId('transaction_id')->nullable()->constrained('transaksi')->onDelete('cascade');
-            $table->timestamp('used_at')->nullable();
+            $table->integer('poin')->default(0); // Jumlah poin yang diberikan setiap kali kode referral digunakan
+            $table->timestamp('used_at')->nullable(); // Waktu penggunaan kode referral
             $table->timestamps();
         });
     }

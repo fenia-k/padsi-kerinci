@@ -31,6 +31,7 @@
                     <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Alamat Pelanggan</th>
                     <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">No HP</th>
                     <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Kode Referral</th>
+                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Poin</th> <!-- Menambahkan kolom Poin -->
                     <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Aksi</th>
                 </tr>
             </thead>
@@ -41,21 +42,22 @@
                     <td class="px-6 py-4 border-b text-gray-800">{{ $pelanggan->alamat_pelanggan }}</td>
                     <td class="px-6 py-4 border-b text-gray-800">{{ $pelanggan->noHP_pelanggan }}</td>
                     <td class="px-6 py-4 border-b text-gray-800">{{ $pelanggan->kode_referal }}</td>
-                    <td class="px-6 py-4 border-b">
+                    <td class="px-6 py-4 border-b text-gray-800">{{ $pelanggan->poin }}</td> <!-- Menampilkan data Poin -->
+                    <td class="px-6 py-4 border-b flex space-x-2">
                         <a href="{{ route('data_pelanggan.edit', $pelanggan->id) }}" class="text-yellow-500 hover:text-yellow-600 font-semibold px-3 py-1 rounded-lg transition duration-300 ease-in-out">
                             Edit
                         </a>
                         <form action="{{ route('data_pelanggan.destroy', $pelanggan->id) }}" method="POST" class="inline-block">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-danger hover:text-red-700 font-semibold px-3 py-1 rounded-lg transition duration-300 ease-in-out"
+                            <button type="submit" class="text-red-500 hover:text-red-700 font-semibold px-3 py-1 rounded-lg transition duration-300 ease-in-out"
                                 onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">Hapus</button>
                         </form>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="text-center px-6 py-4 text-gray-500">
+                    <td colspan="6" class="text-center px-6 py-4 text-gray-500">
                         Tidak ada data yang tersedia.
                     </td>
                 </tr>
