@@ -18,19 +18,36 @@
     .form-select {
         border-radius: 8px;
     }
-    .img-thumbnail {
-        max-height: 100px;
-        object-fit: cover;
-        cursor: pointer;
+    .produk-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
     }
-    .modal-img {
-        width: 100%;
-        height: auto;
+    .img-thumbnail {
+        max-height: 150px;
+        max-width: 150px;
+        object-fit: cover;
+        margin-top: 10px;
+        display: none;
     }
     .error-message {
         color: red;
         font-size: 0.875rem;
         display: none;
+    }
+    #addRow {
+        font-size: 14px;
+        padding: 8px 12px;
+        max-width: 150px;
+    }
+    .menu-container {
+        flex: 5;
+    }
+    .jumlah-container {
+        flex: 2;
+    }
+    .hapus-container {
+        flex: 1;
     }
 </style>
 
@@ -58,33 +75,39 @@
                 <input type="date" name="tanggal_transaksi" id="tanggal_transaksi" class="form-control" value="{{ date('Y-m-d') }}" required>
             </div>
 
-            <!-- Pilih Menu -->
-            <div class="col-md-6">
-                <label for="id_menu" class="form-label">Pilih Menu</label>
-                <select name="id_menu" id="id_menu" class="form-select" required>
-                    <option value="">Pilih Menu</option>
-                    @foreach ($menu as $m)
-                        <option value="{{ $m->id }}" data-harga="{{ $m->harga_menu }}" data-gambar="{{ asset('storage/' . $m->gambar_menu) }}">
-                            {{ $m->nama_menu }} - Rp {{ number_format($m->harga_menu, 0, ',', '.') }}
-                        </option>
-                    @endforeach
-                </select>
+            <!-- Produk Dinamis -->
+            <div id="produk-container" class="col-md-12">
+                <div class="produk-row mb-3">
+                    <!-- Dropdown Produk -->
+                    <div class="menu-container">
+                        <label for="produk[0][id_menu]" class="form-label">Produk</label>
+                        <select name="produk[0][id_menu]" class="form-select menu-select" required>
+                            <option value="">Pilih Produk</option>
+                            @foreach ($menu as $m)
+                                <option value="{{ $m->id }}" data-harga="{{ $m->harga_menu }}" data-gambar="{{ asset('storage/' . $m->gambar_menu) }}" data-jumlah="{{ $m->jumlah_menu }}">
+                                    {{ $m->nama_menu }} - Rp {{ number_format($m->harga_menu, 0, ',', '.') }} (Stok: {{ $m->jumlah_menu }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <!-- Gambar Preview di bawah dropdown -->
+                        <img src="" alt="Gambar Produk" class="menu-preview img-thumbnail mt-2">
+                    </div>
+                    <!-- Kolom Jumlah -->
+                    <div class="jumlah-container">
+                        <label for="produk[0][jumlah]" class="form-label">Jumlah</label>
+                        <input type="number" name="produk[0][jumlah]" class="form-control jumlah-input" min="1" required>
+                    </div>
+                    <!-- Tombol Hapus -->
+                    <div class="hapus-container">
+                        <label class="form-label d-block">&nbsp;</label>
+                        <button type="button" class="btn btn-danger w-100 remove-row">Hapus</button>
+                    </div>
+                </div>
             </div>
-
-            <!-- Jumlah -->
-            <div class="col-md-6">
-                <label for="jumlah" class="form-label">Jumlah</label>
-                <input type="number" name="jumlah" id="jumlah" class="form-control" min="1" placeholder="Masukkan jumlah" required>
-            </div>
-
-            <!-- Preview Gambar Menu -->
-            <div class="col-md-6">
-                <label for="menuImage" class="form-label">Gambar Menu</label>
-                <img id="menuImage" src="" alt="Gambar Menu" class="img-thumbnail d-block" style="display: none;" data-bs-toggle="modal" data-bs-target="#imageModal">
-            </div>
+            <button type="button" id="addRow" class="btn btn-success mb-3">Tambah Produk</button>
 
             <!-- Total Harga -->
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <label for="total_harga" class="form-label">Total Harga</label>
                 <input type="text" name="total_harga" id="total_harga" class="form-control" placeholder="Total harga akan otomatis dihitung" readonly>
             </div>
@@ -116,8 +139,8 @@
             <!-- Input Poin yang Digunakan -->
             <div class="col-md-12">
                 <label for="poin_digunakan" class="form-label">Poin yang Digunakan <small>(untuk diskon)</small></label>
-                <input type="number" name="poin_digunakan" id="poin_digunakan" class="form-control" placeholder="Masukkan jumlah poin yang digunakan" min="0">
-                <p id="poinError" class="error-message">Jumlah poin yang digunakan melebihi jumlah poin yang tersedia.</p>
+                <input type="number" name="poin_digunakan" id="poin_digunakan" class="form-control" placeholder="Masukkan jumlah poin yang digunakan" min="0" disabled>
+                <p id="poinError" class="error-message">Jumlah poin yang digunakan melebihi jumlah transaksi.</p>
             </div>
 
             <!-- Kode Referral -->
@@ -145,100 +168,156 @@
     </form>
 </div>
 
-<!-- Modal for Image Pop-up -->
-<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body p-0">
-                <img id="modalImage" src="" alt="Gambar Menu" class="modal-img">
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- JavaScript for Auto Calculations and Image Display -->
 <script>
-
-    const menuDropdown = document.getElementById('id_menu');
-    const menuImage = document.getElementById('menuImage');
-    const modalImage = document.getElementById('modalImage');
-    const totalHargaInput = document.getElementById('total_harga');
-    const jumlahInput = document.getElementById('jumlah');
-    const nominalInput = document.getElementById('nominal');
-    const kembalianInput = document.getElementById('kembalian');
-    const pelangganDropdown = document.getElementById('id_pelanggan');
-    const poinDisplay = document.getElementById('poinDisplay');
-    const poinValue = document.getElementById('poinValue');
-    const poinDigunakanInput = document.getElementById('poin_digunakan');
-    const poinError = document.getElementById('poinError');
-    const submitButton = document.getElementById('submitButton');
-
-    function updateMenuImage() {
-        const selectedOption = menuDropdown.options[menuDropdown.selectedIndex];
-        const imageSrc = selectedOption.getAttribute('data-gambar');
-        if (imageSrc) {
-            menuImage.src = imageSrc;
-            modalImage.src = imageSrc;
-            menuImage.style.display = 'block';
-        } else {
-            menuImage.style.display = 'none';
-            modalImage.src = '';
-        }
-    }
+    let produkCount = 1;
 
     function calculateTotalHarga() {
-        const harga = parseFloat(menuDropdown.options[menuDropdown.selectedIndex].getAttribute('data-harga')) || 0;
-        const jumlah = parseInt(jumlahInput.value) || 0;
-        const poinUsed = parseInt(poinDigunakanInput.value) || 0;
-        const total = (harga * jumlah) - poinUsed;
+        let totalHarga = 0;
+        document.querySelectorAll('.produk-row').forEach(row => {
+            const harga = parseFloat(row.querySelector('.menu-select option:checked').dataset.harga || 0);
+            const jumlahInput = row.querySelector('.jumlah-input');
+            const jumlah = parseInt(jumlahInput.value || 0);
+            const stokMaksimum = parseInt(row.querySelector('.menu-select option:checked').dataset.jumlah || 0);
 
-        totalHargaInput.value = `Rp ${new Intl.NumberFormat('id-ID').format(total > 0 ? total : 0)}`;
-        calculateChange();
+            // Jika jumlah melebihi stok, set ke stok maksimum dan tampilkan pesan
+            if (jumlah > stokMaksimum) {
+                jumlahInput.value = stokMaksimum;
+                alert(`Jumlah yang diinputkan melebihi stok. ${stokMaksimum}`);
+            }
+
+            totalHarga += harga * parseInt(jumlahInput.value || 0);
+        });
+
+        const poinUsed = parseInt(document.getElementById('poin_digunakan').value || 0);
+        if (poinUsed > totalHarga) {
+            document.getElementById('poinError').style.display = 'block';
+            document.getElementById('submitButton').disabled = true;
+        } else {
+            document.getElementById('poinError').style.display = 'none';
+            document.getElementById('submitButton').disabled = false;
+        }
+
+        document.getElementById('total_harga').value = `Rp ${new Intl.NumberFormat('id-ID').format(totalHarga)}`;
+        calculateChange(totalHarga);
     }
 
-    function calculateChange() {
-        const total = parseInt(totalHargaInput.value.replace(/[^0-9]/g, '')) || 0;
-        const nominal = parseInt(nominalInput.value) || 0;
-        
+    function calculateChange(total) {
+        const nominal = parseInt(document.getElementById('nominal').value || 0);
         const kembalian = nominal - total;
-        kembalianInput.value = kembalian >= 0 ? `Rp ${new Intl.NumberFormat('id-ID').format(kembalian)}` : 'Nominal kurang';
+
+        document.getElementById('kembalian').value = kembalian >= 0 ? `Rp ${new Intl.NumberFormat('id-ID').format(kembalian)}` : 'Nominal kurang';
     }
 
-    pelangganDropdown.addEventListener('change', () => {
-        const selectedOption = pelangganDropdown.options[pelangganDropdown.selectedIndex];
-        const poin = selectedOption.getAttribute('data-poin');
-        if (poin) {
-            poinValue.textContent = poin;
-            poinDisplay.style.display = 'block';
+    function updatePreviewImage(selectElement) {
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        const previewImage = selectElement.closest('.produk-row').querySelector('.menu-preview');
+        const imageSrc = selectedOption.dataset.gambar || '';
+
+        if (imageSrc) {
+            previewImage.src = imageSrc;
+            previewImage.style.display = 'block';
         } else {
-            poinValue.textContent = '0';
-            poinDisplay.style.display = 'none';
-        }
-        checkPoinValidity();
-    });
-
-    poinDigunakanInput.addEventListener('input', () => {
-        checkPoinValidity();
-        calculateTotalHarga();
-    });
-
-    function checkPoinValidity() {
-        const maxPoin = parseInt(poinValue.textContent) || 0;
-        const poinUsed = parseInt(poinDigunakanInput.value) || 0;
-
-        if (poinUsed > maxPoin) {
-            poinError.style.display = 'block';
-            submitButton.disabled = false; // Keep submit button enabled
-        } else {
-            poinError.style.display = 'none';
+            previewImage.src = '';
+            previewImage.style.display = 'none';
         }
     }
 
-    menuDropdown.addEventListener('change', () => {
-        updateMenuImage();
+    document.getElementById('addRow').addEventListener('click', () => {
+        const container = document.getElementById('produk-container');
+        const row = document.createElement('div');
+        row.classList.add('produk-row', 'mb-3');
+        row.innerHTML = `
+            <div class="menu-container">
+                <label class="form-label">Produk</label>
+                <select name="produk[${produkCount}][id_menu]" class="form-select menu-select" required>
+                    <option value="">Pilih Produk</option>
+                    @foreach ($menu as $m)
+                        <option value="{{ $m->id }}" data-harga="{{ $m->harga_menu }}" data-gambar="{{ asset('storage/' . $m->gambar_menu) }}" data-jumlah="{{ $m->jumlah_menu }}">
+                            {{ $m->nama_menu }} - Rp {{ number_format($m->harga_menu, 0, ',', '.') }} (Stok: {{ $m->jumlah_menu }})
+                        </option>
+                    @endforeach
+                </select>
+                <img src="" alt="Gambar Produk" class="menu-preview img-thumbnail mt-2">
+            </div>
+            <div class="jumlah-container">
+                <label class="form-label">Jumlah</label>
+                <input type="number" name="produk[${produkCount}][jumlah]" class="form-control jumlah-input" min="1" required>
+            </div>
+            <div class="hapus-container">
+                <label class="form-label d-block">&nbsp;</label>
+                <button type="button" class="btn btn-danger w-100 remove-row">Hapus</button>
+            </div>`;
+        container.appendChild(row);
+        produkCount++;
+    });
+
+    document.getElementById('produk-container').addEventListener('change', (e) => {
+        if (e.target.classList.contains('menu-select')) {
+            updatePreviewImage(e.target);
+        }
+    });
+
+    document.getElementById('produk-container').addEventListener('click', e => {
+        if (e.target.classList.contains('remove-row')) {
+            e.target.closest('.produk-row').remove();
+            calculateTotalHarga();
+        }
+    });
+
+    document.getElementById('produk-container').addEventListener('input', calculateTotalHarga);
+
+    document.getElementById('nominal').addEventListener('input', () => {
+        const nominal = parseInt(document.getElementById('nominal').value || 0);
+        const poinInput = document.getElementById('poin_digunakan');
+
+        if (nominal > 0) {
+            poinInput.value = '';
+            poinInput.disabled = true;
+        } else {
+            poinInput.disabled = false;
+        }
+
         calculateTotalHarga();
     });
 
-    jumlahInput.addEventListener('input', calculateTotalHarga);
-    nominalInput.addEventListener('input', calculateChange);
+    document.getElementById('poin_digunakan').addEventListener('input', () => {
+        const poinInput = parseInt(document.getElementById('poin_digunakan').value || 0);
+        const nominalInput = document.getElementById('nominal');
+        const totalHarga = parseInt(document.getElementById('total_harga').value.replace(/\D/g, '') || 0);
+
+        if (poinInput > 0) {
+            nominalInput.value = '';
+            nominalInput.disabled = true;
+
+            if (poinInput > totalHarga) {
+                document.getElementById('poinError').style.display = 'block';
+                const poinExcess = poinInput - totalHarga;
+                document.getElementById('poin_digunakan').value = totalHarga; // Set poin digunakan sama dengan total harga
+                alert(`Poin berlebih akan dikembalikan: ${poinExcess}`);
+            } else {
+                document.getElementById('poinError').style.display = 'none';
+            }
+        } else {
+            nominalInput.disabled = false;
+        }
+    });
+
+    document.getElementById('id_pelanggan').addEventListener('change', () => {
+        const selectedOption = document.getElementById('id_pelanggan').options[document.getElementById('id_pelanggan').selectedIndex];
+        const poin = parseInt(selectedOption.dataset.poin || 0);
+        document.getElementById('poinValue').textContent = poin;
+        document.getElementById('poin_digunakan').disabled = false;
+    });
+
+    // Disable form submission if conditions are not met
+    document.getElementById('transaksiForm').addEventListener('submit', (e) => {
+        const totalHarga = parseInt(document.getElementById('total_harga').value.replace(/\D/g, '') || 0);
+        const nominal = parseInt(document.getElementById('nominal').value || 0);
+        const poinDigunakan = parseInt(document.getElementById('poin_digunakan').value || 0);
+
+        if ((nominal < totalHarga) && (poinDigunakan < totalHarga)) {
+            e.preventDefault();
+            alert("Nominal pembayaran atau poin yang digunakan harus mencukupi total harga transaksi.");
+        }
+    });
 </script>

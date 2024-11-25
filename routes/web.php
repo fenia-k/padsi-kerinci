@@ -6,7 +6,7 @@ use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DataPelangganController;
 use App\Http\Controllers\DataPenggunaController;
-use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\LaporanTransaksiController;
 use App\Http\Controllers\LoyaltyProgramController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\RoleController;
@@ -40,7 +40,6 @@ Route::middleware(['auth', 'role:owner'])->prefix('owner')->group(function () {
     // Rute khusus untuk data master yang hanya dapat diakses oleh owner
     Route::prefix('data_master')->group(function () {
         Route::resource('data_pengguna', DataPenggunaController::class);
-        Route::resource('laporan', LaporanController::class);
         Route::resource('role', RoleController::class);
     });
 });
@@ -51,14 +50,7 @@ Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->group(function (
     // Tambahkan rute lain khusus untuk pegawai di sini jika diperlukan
 });
 
-// // Rute untuk Pengelolaan Profil Pengguna yang Sudah Login
-// Route::middleware('auth')->group(function () {
-//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-// });
-
-// Grup Rute untuk Data Master Umum yang Bisa Diakses Semua Pengguna Terverifikasi
+// Grup Rute untuk Data Master Umum, dapat diakses oleh pegawai dan owner
 Route::middleware(['auth', 'verified'])->prefix('data_master')->group(function () {
     Route::resource('data_pelanggan', DataPelangganController::class);
     Route::resource('loyalty_program', LoyaltyProgramController::class);
@@ -68,9 +60,22 @@ Route::middleware(['auth', 'verified'])->prefix('data_master')->group(function (
     Route::resource('diskon', DiskonController::class); // Tambahkan rute diskon
     Route::get('/referral-report', [DataPelangganController::class, 'referralReport'])->name('referral.report');
     Route::get('/transaksi/{id}/detail', [TransaksiController::class, 'detail'])->name('transaksi.detail');
+});
 
+// Grup Rute untuk Laporan, hanya bisa diakses oleh owner
+Route::prefix('laporan')->middleware(['auth', 'role:owner'])->group(function () {
+    Route::get('/', [LaporanTransaksiController::class, 'index'])->name('laporan.index');
+    Route::get('/{id}', [LaporanTransaksiController::class, 'detail'])->name('laporan.detail'); // Jika detail diperlukan
+});
 
+// Rute untuk export laporan, hanya bisa diakses oleh owner
+Route::prefix('admin')->middleware(['auth', 'role:owner'])->group(function () {
+    Route::get('/laporan/export', [LaporanTransaksiController::class, 'exportPDF'])->name('laporan.export');
 });
 
 // Sertakan rute autentikasi default (login, register, dll.)
 require __DIR__.'/auth.php';
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

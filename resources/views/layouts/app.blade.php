@@ -11,21 +11,20 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Font Awesome (optional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Vite Integration -->
+    @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased bg-gray-100">
-    <div class="flex min-h-screen">
-
+    <div class="flex">
         <!-- Include Sidebar -->
         @include('layouts.sidebar')
 
         <!-- Main Content -->
-        <div class="flex-1">
-       
-
-            <!-- Page Content -->
-            <main class="p-6">
+        <div class="flex-1 ml-64 p-6"> <!-- ml-64 untuk memberi ruang bagi sidebar -->
+            <main>
                 @yield('content')
             </main>
         </div>

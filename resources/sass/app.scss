@@ -1,0 +1,261 @@
+// Fonts
+@import url('https://fonts.bunny.net/css?family=Nunito');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+@import 'bootstrap/scss/bootstrap';
+
+// Variabel SASS
+$primary-color: #f5d9bd;
+$secondary-color: #46152c;
+$font-stack: 'Arial, sans-serif';
+
+// Mixin untuk border
+@mixin border-radius($radius) {
+    border-radius: $radius;
+}
+
+// Styling global
+body {
+    font-family: $font-stack;
+    background-color: $secondary-color;
+    margin: 0;
+}
+
+// Styling container
+.container {
+    background-color: $primary-color;
+    color: white;
+    padding: 20px;
+    @include border-radius(10px);
+
+    .child {
+        color: #fff;
+        margin-top: 10px;
+        font-size: 1.2rem;
+    }
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Reset
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+// Global Styles
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa; // Light gray background for the entire app
+    color: #333;
+}
+
+// Container styling
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
+
+// Header
+header {
+    background-color: #e0a21d; // Primary color for header
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+// Button styling
+button, .btn {
+    background: linear-gradient(90deg, #d2a679, #b98b5e); // Primary button color
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+        background-color: #b37a00; // Darker shade on hover
+    }
+}
+
+// Table styling
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+
+    th, td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    th {
+        background: linear-gradient(90deg, #d2a679, #b98b5e);
+        /* Gradasi dari warna lebih terang (#d2a679) ke warna lebih gelap (#b98b5e) */
+        color: #fff;
+    }
+}
+
+// Form styling
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    label {
+        font-weight: bold;
+    }
+
+    input, select, textarea {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 100%;
+    }
+}
+
+// Login Page Specific Styles
+.login-container {
+    max-width: 400px; // Set a max width for the login form
+    margin: auto; // Center the login form
+    padding: 2rem; // Inner padding for login form
+    background-color: rgba(255, 255, 255, 0.9); // Semi-transparent white background
+    border-radius: 8px; // Rounded corners
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); // Shadow for depth
+
+    .login-button {
+        background-color: #b3804d; // Warm brown color for coffee theme
+        color: white; // Text color for buttons
+
+        &:hover {
+            background-color: #8c6239; // Darker shade on button hover
+        }
+    }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+    .container {
+        padding: 10px; // Adjust padding for smaller screens
+    }
+
+    table, form {
+        font-size: 0.9rem; // Slightly smaller font size
+    }
+
+    .login-container {
+        padding: 1rem; // Adjust padding for smaller screens
+    }
+}
+
+// Custom Headings
+h2 {
+    color: #4a4a8a; // Custom color for headings
+}
+
+.table {
+    margin-top: 1rem; // Spacing above tables
+
+    thead {
+        background-color: #4a4a8a; // Darker header background for tables
+        color: #ffffff; // White text color for header
+    }
+}
+
+// Form Labels
+.form-label {
+    color: #4a4a8a; // Label color
+    font-weight: bold; // Bold labels
+}
+
+// Button Variants
+.btn-primary, .btn-secondary {
+    width: 100%; // Full width buttons
+}
+
+// Sidebar Styling
+aside {
+    width: 16rem; /* Lebar sidebar */
+    height: 100vh; /* Tinggi penuh viewport */
+    position: fixed; /* Fixed agar sidebar tetap di samping */
+    top: 0;
+    left: 0;
+    background-color: #7f4e26; /* Cokelat tua yang tidak terlalu gelap */
+    z-index: 1000; /* Z-index tinggi agar di atas elemen lain */
+    overflow-y: auto; /* Scroll jika konten terlalu panjang */
+
+    .logo-section {
+        padding: 1rem;
+        text-align: center;
+        border-bottom: 4px solid #7f4e26; /* Border bawah menggunakan cokelat tua */
+    }
+
+    nav {
+        padding: 1rem;
+
+        a {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.375rem; /* Rounded corners */
+            color: #D2B48C; /* Teks cokelat muda */
+            text-decoration: none;
+
+            &:hover {
+                background-color: #6B3E2B; /* Warna lebih gelap saat hover */
+            }
+
+            &.active {
+                background-color: #6B3E2B; /* Warna lebih gelap saat link aktif */
+                color: #ffffff; /* Teks putih pada link aktif */
+            }
+        }
+    }
+}
+
+// Sidebar link colors
+aside nav a {
+    color: #D2B48C; /* Teks cokelat muda */
+}
+
+aside nav a:hover {
+    background-color: #6B3E2B; /* Gelap saat hover */
+    color: #ffffff; /* Teks putih saat hover */
+}
+
+aside nav a.active {
+    background-color: #6B3E2B; /* Background aktif lebih gelap */
+    color: #ffffff; /* Teks putih untuk link aktif */
+}
+
+// Main Content Styling
+.main-content {
+    margin-left: 16rem; /* Menyesuaikan lebar sidebar */
+    padding: 1.5rem;
+}
+
+// Styling for active and inactive links
+.active {
+    background-color: #945236; /* Gelap untuk link aktif */
+    color: #ffffff;
+}
+
+.inactive {
+    opacity: 0.6;
+    &:hover {
+        opacity: 1;
+        background-color: #6B3E2B; /* Gelap saat hover */
+    }
+}

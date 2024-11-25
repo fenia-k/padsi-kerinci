@@ -9,9 +9,10 @@
     box-sizing: border-box;
 }
 
+/* Global Styles */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+    background-color: #f8f9fa; /* Light gray background for the entire app */
     color: #333;
 }
 
@@ -25,7 +26,7 @@ body {
 
 /* Header */
 header {
-    background-color: #007bff;
+    background-color: #007bff; /* Primary color for header */
     color: #fff;
     padding: 10px 0;
     text-align: center;
@@ -34,7 +35,7 @@ header {
 
 /* Button styling */
 button, .btn {
-    background-color: #007bff;
+    background-color: #007bff; /* Primary button color */
     color: white;
     padding: 8px 15px;
     border: none;
@@ -44,7 +45,7 @@ button, .btn {
 }
 
 button:hover, .btn:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* Darker shade on hover */
 }
 
 /* Table styling */
@@ -61,7 +62,7 @@ table th, table td {
 }
 
 table th {
-    background-color: #007bff;
+    background-color: #007bff; /* Header background color for tables */
     color: #fff;
 }
 
@@ -83,87 +84,63 @@ form input, form select, form textarea {
     width: 100%;
 }
 
-form input[type="submit"] {
-    width: auto;
-    align-self: flex-start;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 4px;
+/* Login Page Specific Styles */
+.login-container {
+    max-width: 400px; /* Set a max width for the login form */
+    margin: auto; /* Center the login form */
+    padding: 2rem; /* Inner padding for login form */
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); /* Shadow for depth */
 }
 
-form input[type="submit"]:hover {
-    background-color: #0056b3;
+.login-button {
+    background-color: #b3804d; /* Warm brown color for coffee theme */
+    color: white; /* Text color for buttons */
+}
+
+.login-button:hover {
+    background-color: #8c6239; /* Darker shade on button hover */
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
-        padding: 10px;
+        padding: 10px; /* Adjust padding for smaller screens */
     }
 
     table, form {
-        font-size: 0.9rem;
+        font-size: 0.9rem; /* Slightly smaller font size */
+    }
+
+    .login-container {
+        padding: 1rem; /* Adjust padding for smaller screens */
     }
 }
 
-/* app.css */
-body {
-    background-color: #f0f2f5;
-}
-
-.form-container {
-    max-width: 800px;
-    margin: auto;
-    padding: 1.5rem;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+/* Custom Headings */
+h2 {
+    color: #4a4a8a; /* Custom color for headings */
 }
 
 .table {
-    margin-top: 1rem;
+    margin-top: 1rem; /* Spacing above tables */
 }
 
-h2 {
-    color: #4a4a8a;
+.table thead {
+    background-color: #4a4a8a; /* Darker header background for tables */
+    color: #ffffff; /* White text color for header */
 }
 
+/* Form Labels */
 .form-label {
-    color: #4a4a8a;
-    font-weight: bold;
+    color: #4a4a8a; /* Label color */
+    font-weight: bold; /* Bold labels */
 }
 
+/* Button Variants */
 .btn-primary, .btn-secondary {
-    width: 100%;
+    width: 100%; /* Full width buttons */
 }
 
-.table thead {
-    background-color: #4a4a8a;
-    color: #ffffff;
-}
 
-/* app.css */
-body {
-    background-color: #f0f2f5;
-}
-
-.form-container {
-    max-width: 800px;
-    margin: auto;
-    padding: 1.5rem;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-    color: #4a4a8a;
-}
-
-.table thead {
-    background-color: #4a4a8a;
-    color: #ffffff;
-}

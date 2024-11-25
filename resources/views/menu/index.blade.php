@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mx-auto p-6">
-    <h2 class="text-3xl font-semibold text-primary mb-6">Data Menu</h2>
+    <h2 class="text-3xl font-semibold text-[#8B4513] mb-6">Data Menu</h2>
 
     <!-- Notifikasi Pesan -->
     @if (session('success'))
@@ -15,61 +15,87 @@
         </div>
     @endif
 
-    <!-- Button Tambah Data -->
-    <div class="flex justify-end mb-4">
-        <a href="{{ route('menu.create') }}" class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
+    <!-- Search Bar and Create Button -->
+    <div class="flex justify-between items-center mb-4">
+        <form action="{{ route('menu.index') }}" method="GET" class="flex items-center w-1/3 relative" id="searchForm">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search Menu..." 
+                   class="search-input w-full border border-gray-300 rounded-lg px-4 py-1 text-black placeholder-gray-500 focus:outline-none focus:border-[#8B4513] transition duration-200 ease-in-out" 
+                   id="searchInput" autocomplete="off" style="font-size: 0.875rem;" />
+            <button type="submit" class="absolute right-3 text-[#8B4513] p-2 search-icon">
+                <i class="fas fa-search"></i> <!-- Font Awesome icon for search -->
+            </button>
+        </form>
+        <a href="{{ route('menu.create') }}" class="bg-[#8B4513] hover:bg-[#A0522D] text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
             + Tambah Menu
         </a>
     </div>
 
-    <!-- Table -->
-    <div class="bg-white shadow-md rounded-lg overflow-x-auto">
-        <table class="min-w-full table-auto border-collapse border border-gray-200">
-            <thead class="bg-secondary text-gray-800">
-                <tr>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Gambar</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Nama Menu</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Deskripsi</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Harga</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Jumlah</th>
-                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-700">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white">
-                @forelse ($menus as $menu)
-                <tr class="hover:bg-gray-100 transition-colors duration-200 ease-in-out">
-                    <td class="px-6 py-4 border-b text-gray-800">
-                        @if($menu->gambar_menu)
-                            <img src="{{ asset('storage/' . $menu->gambar_menu) }}" alt="Gambar Menu" class="w-16 h-16 object-cover rounded">
-                        @else
-                            Tidak ada gambar
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 border-b text-gray-800">{{ $menu->nama_menu }}</td>
-                    <td class="px-6 py-4 border-b text-gray-800">{{ $menu->deskripsi_menu }}</td>
-                    <td class="px-6 py-4 border-b text-gray-800">{{ $menu->harga_menu }}</td>
-                    <td class="px-6 py-4 border-b text-gray-800">{{ $menu->jumlah_menu }}</td>
-                    <td class="px-6 py-4 border-b">
-                        <a href="{{ route('menu.edit', $menu->id) }}" class="text-yellow-500 hover:text-yellow-600 font-semibold px-3 py-1 rounded-lg transition duration-300 ease-in-out">
-                            Edit
-                        </a>
-                        <form action="{{ route('menu.destroy', $menu->id) }}" method="POST" class="inline-block">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-danger hover:text-red-700 font-semibold px-3 py-1 rounded-lg transition duration-300 ease-in-out"
-                                onclick="return confirm('Apakah Anda yakin ingin menghapus menu ini?')">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="text-center px-6 py-4 text-gray-500">
-                        Tidak ada data menu yang tersedia.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <!-- Menu Cards -->
+    <div class="menu-cards grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+        @forelse ($menus as $menu)
+            <div class="menu-card relative border-2 border-[#8B4513] rounded-lg shadow-lg p-6 text-center bg-white">
+                <div class="menu-id absolute top-2 left-2 font-bold bg-[#4A3B30] px-2 py-1 rounded">{{ $menu->id }}</div>
+                <div class="menu-image rounded-full overflow-hidden bg-white mx-auto my-4" style="width: 120px; height: 120px;">
+                    @if($menu->gambar_menu)
+                        <img src="{{ asset('storage/' . $menu->gambar_menu) }}" alt="{{ $menu->nama_menu }}" class="w-full h-full object-cover">
+                    @else
+                        <p class="text-gray-500">No Image</p>
+                    @endif
+                </div>
+                <div class="menu-info mt-4">
+                    <h2 class="text-lg font-semibold text-[#8B4513] font-serif">{{ $menu->nama_menu }}</h2>
+                    <p class="text-[#8B4513] font-bold">Rp {{ number_format($menu->harga_menu, 0, ',', '.') }}</p>
+                    <p class="text-gray-500">{{ $menu->jumlah_menu }} Available</p>
+                </div>
+                <div class="menu-buttons flex justify-center gap-4 mt-4">
+                    <a href="{{ route('menu.edit', $menu->id) }}" class="menuedit-btn px-4 py-1 bg-[#A0522D] text-white rounded-lg hover:bg-[#8B4513] transition-all">
+                        edit
+                    </a>
+                    <form action="{{ route('menu.destroy', $menu->id) }}" method="POST" class="inline-block">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="menudelete-btn px-4 py-1 bg-[#8B0000] text-white rounded-lg hover:bg-[#B22222] transition-all"
+                                onclick="return confirm('Apakah Anda yakin ingin menghapus menu ini?')">
+                            delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @empty
+            <p class="col-span-full text-center text-gray-500">Tidak ada data menu yang sesuai dengan pencarian.</p>
+        @endforelse
     </div>
 </div>
+
+<script>
+document.getElementById('searchInput').addEventListener('input', function() {
+    clearTimeout(this.delay);
+    this.delay = setTimeout(() => {
+        document.getElementById('searchForm').submit();
+    }, 500);
+});
+</script>
+
+<!-- Style -->
+<style>
+     .container {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    .search-input {
+        border-radius: 0.5rem;
+    }
+
+    .search-icon {
+        background: transparent;
+        border: none;
+    }
+    .search-icon:hover {
+        background: transparent;
+        cursor: pointer;
+    }
+</style>
+
 @endsection

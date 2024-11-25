@@ -9,6 +9,7 @@
             <h3><i class="fas fa-receipt"></i> Detail Transaksi #{{ $transaksi->id }}</h3>
         </div>
         <div class="card-body">
+            <!-- Informasi Transaksi -->
             <div class="row mb-4">
                 <div class="col-md-6">
                     <p><i class="fas fa-calendar-alt"></i> <strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</p>
@@ -17,10 +18,11 @@
                 </div>
                 <div class="col-md-6">
                     <p><i class="fas fa-tags"></i> <strong>Kode Referral:</strong> {{ $transaksi->kode_referal ?? 'Tidak Ada' }}</p>
-                    <p><i class="fas fa-coins"></i> <strong>Diskon:</strong> Rp {{ number_format($transaksi->diskon, 0, ',', '.') }}</p>
                     <p><i class="fas fa-gift"></i> <strong>Poin Digunakan:</strong> {{ $transaksi->poin_digunakan ?? 'Tidak Ada' }}</p>
                 </div>
             </div>
+
+            <!-- Ringkasan Pembayaran -->
             <div class="row mb-4">
                 <div class="col-md-4">
                     <div class="alert alert-info">
@@ -34,11 +36,19 @@
                 </div>
                 <div class="col-md-4">
                     <div class="alert alert-success">
-                        <strong>Kembalian:</strong> Rp {{ number_format($transaksi->nominal - $transaksi->total_harga, 0, ',', '.') }}
+                        <strong>Kembalian:</strong>
+                        @if($transaksi->nominal >= $transaksi->total_harga && $transaksi->nominal > 0)
+                            Rp {{ number_format($transaksi->nominal - $transaksi->total_harga, 0, ',', '.') }}
+                        @else
+                            <span class="text-danger">Nominal pembayaran kurang</span>
+                        @endif
                     </div>
                 </div>
             </div>
+
             <hr>
+
+            <!-- Detail Menu dalam Transaksi -->
             <h4 class="text-center mb-4"><i class="fas fa-shopping-cart"></i> Detail Menu</h4>
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
@@ -52,19 +62,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td class="text-center">
-                                <img src="{{ asset('storage/' . $transaksi->menu->gambar_menu) }}" alt="{{ $transaksi->menu->nama_menu }}" class="img-thumbnail" style="width: 80px; height: 80px;">
-                            </td>
-                            <td>{{ $transaksi->menu->nama_menu }}</td>
-                            <td>Rp {{ number_format($transaksi->menu->harga_menu, 0, ',', '.') }}</td>
-                            <td class="text-center">{{ $transaksi->jumlah }}</td>
-                            <td>Rp {{ number_format($transaksi->menu->harga_menu * $transaksi->jumlah, 0, ',', '.') }}</td>
-                        </tr>
+                        @foreach($transaksi->detailTransaksi as $detail)
+                            <tr>
+                                <td class="text-center">
+                                    @if($detail->menu && $detail->menu->gambar_menu)
+                                        <img src="{{ asset('storage/' . $detail->menu->gambar_menu) }}" alt="{{ $detail->menu->nama_menu }}" class="img-thumbnail" style="width: 80px; height: 80px;">
+                                    @else
+                                        <p>Tidak ada gambar</p>
+                                    @endif
+                                </td>
+                                <td>{{ $detail->menu->nama_menu ?? 'Menu tidak ditemukan' }}</td>
+                                <td>Rp {{ number_format($detail->menu->harga_menu ?? 0, 0, ',', '.') }}</td>
+                                <td class="text-center">{{ $detail->jumlah_pesanan }}</td>
+                                <td>Rp {{ number_format(($detail->menu->harga_menu ?? 0) * $detail->jumlah_pesanan, 0, ',', '.') }}</td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
+
+        <!-- Tombol Kembali -->
         <div class="card-footer text-center">
             <a href="{{ route('transaksi.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Kembali
@@ -89,5 +107,5 @@
 </style>
 @endsection
 
-<!-- Pastikan Anda memiliki font-awesome -->
+<!-- Pastikan Anda memiliki font-awesome untuk ikon -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

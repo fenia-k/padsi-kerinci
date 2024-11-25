@@ -53,4 +53,34 @@ class User extends Authenticatable
     {
         return $this->role === $role;
     }
+
+    /**
+     * Override the default findForPassport method to allow login using email or name.
+     *
+     * @param string $identifier
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function findForPassport($identifier)
+    {
+        return $this->where('email', $identifier)->orWhere('name', $identifier)->first();
+    }
+
+    /**
+     * Automatically create a User account for DataPengguna.
+     *
+     * @param  \App\Models\DataPengguna  $dataPengguna
+     * @return static
+     */
+    public static function createFromDataPengguna($dataPengguna)
+    {
+        // Generate a random password or a default password
+        $randomPassword = \Illuminate\Support\Str::random(8);
+
+        return self::create([
+            'name' => $dataPengguna->nama_pengguna,
+            'email' => strtolower(str_replace(' ', '.', $dataPengguna->nama_pengguna)) . '@example.com', // Membuat email default
+            'password' => bcrypt($randomPassword),
+            'role' => $dataPengguna->role->nama_role, // Assuming `role` relation exists in DataPengguna
+        ]);
+    }
 }

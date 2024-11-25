@@ -3,22 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaksi;
+use App\Models\DetailTransaksi;
 use App\Models\DataPelanggan;
 use App\Models\DataPengguna;
 use App\Models\Menu;
 use App\Models\ReferralLog;
-use App\Models\LoyaltyProgram; 
+use App\Models\LoyaltyProgram;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TransaksiController extends Controller
 {
+    // Menampilkan daftar transaksi dengan paginasi
     public function index()
     {
-        $transaksi = Transaksi::with('menu', 'pelanggan', 'pengguna')->get();
+        $transaksi = Transaksi::with('detailTransaksi.menu', 'pelanggan', 'pengguna')->paginate(10);
         return view('transaksi.index', compact('transaksi'));
     }
 
+    // Menampilkan halaman untuk membuat transaksi baru
     public function create()
     {
         $pelanggan = DataPelanggan::all();
@@ -28,171 +31,120 @@ class TransaksiController extends Controller
         return view('transaksi.create', compact('pelanggan', 'pengguna', 'menu'));
     }
 
+    // Menyimpan transaksi baru ke database
     public function store(Request $request)
     {
         $request->validate([
-            'id_menu' => 'required|exists:menu,id',
-            'jumlah' => 'required|numeric|min:1',
-            'nominal' => 'nullable|numeric',
+            'produk' => 'required|array',
+            'produk.*.id_menu' => 'required|exists:menu,id',
+            'produk.*.jumlah' => 'required|numeric|min:1',
             'tanggal_transaksi' => 'required|date',
             'id_pelanggan' => 'nullable|exists:data_pelanggan,id',
             'id_pengguna' => 'required|exists:data_pengguna,id',
-            'kode_referal' => 'nullable|exists:data_pelanggan,kode_referal',
+            'kode_referal' => 'nullable|exists:loyalty_program,kode_referral', // Disesuaikan dengan nama tabel
             'poin_digunakan' => 'nullable|numeric|min:0',
+            'nominal' => 'nullable|numeric|min:0',
         ]);
-
+    
         DB::beginTransaction();
         try {
-            $menu = Menu::find($request->id_menu);
-            $totalHarga = $menu->harga_menu * $request->jumlah;
-            $diskonPoin = 0;
-
-            if ($request->id_pelanggan && $request->poin_digunakan) {
+            $totalHarga = 0;
+            $totalJumlah = 0;
+    
+            // Validasi dan pengurangan stok menu
+            foreach ($request->produk as $produk) {
+                $menu = Menu::findOrFail($produk['id_menu']);
+                if ($menu->jumlah_menu < $produk['jumlah']) {
+                    return redirect()->back()->withErrors(['produk' => "Stok tidak mencukupi untuk produk {$menu->nama_menu}"]);
+                }
+    
+                $totalProduk = $menu->harga_menu * $produk['jumlah'];
+                $totalHarga += $totalProduk;
+                $totalJumlah += $produk['jumlah'];
+    
+                // Mengurangi stok menu
+                $menu->decrement('jumlah_menu', $produk['jumlah']);
+            }
+    
+            // Penanganan poin pelanggan jika digunakan
+            $poinYangDigunakan = min($request->poin_digunakan ?? 0, $totalHarga);
+    
+            if ($request->id_pelanggan && $poinYangDigunakan > 0) {
                 $pelanggan = DataPelanggan::find($request->id_pelanggan);
-
-                if ($request->poin_digunakan > $pelanggan->poin) {
-                    return redirect()->back()->withErrors(['poin_digunakan' => 'Jumlah poin yang digunakan melebihi jumlah poin yang tersedia']);
+                if ($poinYangDigunakan > $pelanggan->poin) {
+                    return redirect()->back()->withErrors(['poin_digunakan' => 'Poin yang digunakan melebihi jumlah yang tersedia']);
                 }
-
-                $diskonPoin = $request->poin_digunakan;
-                $pelanggan->decrement('poin', $diskonPoin);
+                $pelanggan->decrement('poin', $poinYangDigunakan);
             }
-
-            $totalHargaAkhir = max(0, $totalHarga - $diskonPoin);
-
-            $transaksi = new Transaksi();
-            $transaksi->fill([
-                'id_menu' => $request->id_menu,
-                'jumlah' => $request->jumlah,
-                'total_harga' => $totalHargaAkhir,
-                'nominal' => $request->nominal ?? 0, // Default to 0 if null
-                'tanggal_transaksi' => $request->tanggal_transaksi,
-                'id_pelanggan' => $request->id_pelanggan,
-                'id_pengguna' => $request->id_pengguna,
-                'diskon' => $diskonPoin,
-                'poin_digunakan' => $diskonPoin,
-                'kode_referal' => $request->kode_referal,
-            ]);
-            $transaksi->save();
-
-        // Proses referral dan update batas pemakaian di LoyaltyProgram
-        if ($request->kode_referal) {
-            $referrer = DataPelanggan::where('kode_referal', $request->kode_referal)->first();
-            if ($referrer) {
-                // Update LoyaltyProgram
-                $loyaltyProgram = LoyaltyProgram::where('id_pelanggan', $referrer->id)->first();
+    
+            // Penanganan kode referral
+            if ($request->kode_referal) {
+                $loyaltyProgram = LoyaltyProgram::where('kode_referral', $request->kode_referal)->first();
+    
                 if ($loyaltyProgram) {
-                    $loyaltyProgram->decrement('batas_loyalty', 1); // Mengurangi batas loyalty
-                }
-
-                // Log referral
-                ReferralLog::create([
-                    'referrer_user_id' => $referrer->id,
-                    'referred_user_id' => $request->id_pelanggan,
-                    'transaction_id' => $transaksi->id,
-                    'poin' => 5000,
-                    'used_at' => now(),
-                ]);
-
-                $referrer->increment('poin', 5000);
-
-                if ($request->id_pelanggan) {
-                    $referredPelanggan = DataPelanggan::find($request->id_pelanggan);
-                    $referredPelanggan->increment('poin', 3000);
+                    if ($loyaltyProgram->batas_loyalty <= 0) {
+                        return redirect()->back()->withErrors(['kode_referal' => 'Batas penggunaan kode referral telah habis.']);
+                    }
+    
+                    // Kurangi batas loyalitas
+                    $loyaltyProgram->decrement('batas_loyalty');
                 }
             }
-        }
-
-        DB::commit();
-        return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil ditambahkan');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->route('transaksi.index')->with('error', 'Gagal menambahkan transaksi: ' . $e->getMessage());
-    }
-}
-
-    public function edit(Transaksi $transaksi)
-    {
-        $pelanggan = DataPelanggan::all();
-        $pengguna = DataPengguna::all();
-        $menu = Menu::all();
-
-        return view('transaksi.edit', compact('transaksi', 'pelanggan', 'pengguna', 'menu'));
-    }
-
-    public function update(Request $request, Transaksi $transaksi)
-    {
-        $request->validate([
-            'id_menu' => 'required|exists:menu,id',
-            'jumlah' => 'required|numeric|min:1',
-            'nominal' => 'nullable|numeric',
-            'tanggal_transaksi' => 'required|date',
-            'id_pelanggan' => 'nullable|exists:data_pelanggan,id',
-            'id_pengguna' => 'required|exists:data_pengguna,id',
-            'kode_referal' => 'nullable|exists:data_pelanggan,kode_referal',
-            'poin_digunakan' => 'nullable|numeric|min:0',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            $menu = Menu::find($request->id_menu);
-            $totalHarga = $menu->harga_menu * $request->jumlah;
-            $diskonPoin = $request->poin_digunakan ?? $transaksi->poin_digunakan;
-
-            $transaksi->update([
-                'id_menu' => $request->id_menu,
-                'jumlah' => $request->jumlah,
-                'total_harga' => $totalHarga,
-                'nominal' => $request->nominal ?? 0,
-                'tanggal_transaksi' => $request->tanggal_transaksi,
+    
+            // Simpan transaksi
+            $transaksi = Transaksi::create([
                 'id_pelanggan' => $request->id_pelanggan,
                 'id_pengguna' => $request->id_pengguna,
-                'poin_digunakan' => $diskonPoin,
+                'tanggal_transaksi' => $request->tanggal_transaksi,
                 'kode_referal' => $request->kode_referal,
+                'total_harga' => $totalHarga,
+                'jumlah' => $totalJumlah,
+                'nominal' => $request->nominal ?? 0,
+                'poin_digunakan' => $poinYangDigunakan,
             ]);
-
-            if ($request->kode_referal && $request->kode_referal !== $transaksi->kode_referal) {
-                $referrer = DataPelanggan::where('kode_referal', $request->kode_referal)->first();
-                if ($referrer) {
-                    ReferralLog::updateOrCreate(
-                        ['transaction_id' => $transaksi->id],
-                        [
-                            'referrer_user_id' => $referrer->id,
-                            'referred_user_id' => $request->id_pelanggan,
-                            'poin' => 5000,
-                            'used_at' => now(),
-                        ]
-                    );
-
-                    $referrer->increment('poin', 5000);
-                    if ($request->id_pelanggan) {
-                        $referredPelanggan = DataPelanggan::find($request->id_pelanggan);
-                        $referredPelanggan->increment('poin', 3000);
-                    }
-                }
+    
+            // Menyimpan detail transaksi
+            foreach ($request->produk as $produk) {
+                $menu = Menu::findOrFail($produk['id_menu']);
+                DetailTransaksi::create([
+                    'id_transaksi' => $transaksi->id,
+                    'id_menu' => $menu->id,
+                    'jumlah_pesanan' => $produk['jumlah'],
+                    'harga_menu' => $menu->harga_menu,
+                    'sub_total' => $menu->harga_menu * $produk['jumlah'],
+                ]);
             }
-
+    
             DB::commit();
-            return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil diperbarui');
+            return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil ditambahkan');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('transaksi.index')->with('error', 'Gagal memperbarui transaksi: ' . $e->getMessage());
+            return redirect()->route('transaksi.index')->with('error', 'Gagal menambahkan transaksi: ' . $e->getMessage());
         }
     }
+    
 
+    // Menampilkan detail transaksi
+    public function detail($id)
+    {
+        $transaksi = Transaksi::with('detailTransaksi.menu', 'pelanggan', 'pengguna')->findOrFail($id);
+        return view('transaksi.detail', compact('transaksi'));
+    }
+
+    // Menghapus transaksi dan mengembalikan stok produk
     public function destroy(Transaksi $transaksi)
     {
         try {
+            foreach ($transaksi->detailTransaksi as $detail) {
+                $menu = Menu::find($detail->id_menu);
+                if ($menu) {
+                    $menu->increment('jumlah_menu', $detail->jumlah_pesanan);
+                }
+            }
             $transaksi->delete();
             return redirect()->route('transaksi.index')->with('success', 'Transaksi berhasil dihapus');
         } catch (\Exception $e) {
             return redirect()->route('transaksi.index')->with('error', 'Gagal menghapus transaksi');
         }
-    }
-
-    public function detail($id)
-    {
-        $transaksi = Transaksi::with('menu', 'pelanggan', 'pengguna')->findOrFail($id);
-        return view('transaksi.detail', compact('transaksi'));
     }
 }

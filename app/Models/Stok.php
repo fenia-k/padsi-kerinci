@@ -12,6 +12,6 @@ class Stok extends Model
     protected $table = 'stok';
 
     protected $fillable = [
-        'nama_stok', 'jumlah_stok', 'harga_menu'
+        'nama_stok', 'jumlah_stok',
     ];
 }
