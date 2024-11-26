@@ -35,6 +35,7 @@
                     <th class="px-6 py-3 border-b font-semibold text-left text-gray-900">Pelanggan</th>
                     <th class="px-6 py-3 border-b font-semibold text-left text-gray-900">Kode Referral</th>
                     <th class="px-6 py-3 border-b font-semibold text-left text-gray-900">Batas Loyalty</th>
+                    <th class="px-6 py-3 border-b font-semibold text-left text-gray-900">Aksi</th> <!-- Add action column -->
                 </tr>
             </thead>
             <tbody class="bg-white">
@@ -43,6 +44,16 @@
                     <td class="px-6 py-4 border-b text-gray-800">{{ $program->pelanggan->nama_pelanggan ?? 'Tidak Ada' }}</td>
                     <td class="px-6 py-4 border-b text-gray-800">{{ $program->kode_referral }}</td>
                     <td class="px-6 py-4 border-b text-gray-800">{{ $program->batas_loyalty }}x</td>
+                    <td class="px-6 py-4 border-b text-gray-800">
+                        <!-- Delete Button -->
+                        <form action="{{ route('loyalty_program.destroy', $program->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus program loyalty ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-white-500 hover:text-white-700">
+                                <i class="fas fa-trash-alt"></i> 
+                            </button>
+                        </form>
+                    </td>
                 </tr>
                 @empty
                 <tr>

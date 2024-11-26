@@ -23,6 +23,7 @@
 </head>
 <body>
     <h2 class="text-center">Laporan Transaksi</h2>
+    <p class="text-center">Tanggal: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}</p>
     <table class="table">
         <thead>
             <tr>

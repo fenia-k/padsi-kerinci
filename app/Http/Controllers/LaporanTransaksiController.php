@@ -9,36 +9,54 @@ use PDF;
 class LaporanTransaksiController extends Controller
 {
     // Fungsi untuk menampilkan laporan transaksi
-  // Contoh penggunaan di LaporanTransaksiController
-  public function index(Request $request)
-  {
-      $startDate = $request->input('start_date');
-      $endDate = $request->input('end_date');
-  
-      $query = Transaksi::with('detailTransaksi.menu', 'pelanggan', 'pengguna')
-          ->orderBy('tanggal_transaksi', 'desc'); // Urutkan dari tanggal terbaru
-  
-      if ($startDate && $endDate) {
-          $query->whereBetween('tanggal_transaksi', [$startDate, $endDate]);
-      }
-  
-      $transaksi = $query->paginate(10);
-  
-      return view('laporan.index', compact('transaksi', 'startDate', 'endDate'));
-  }
-  
+    public function index(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+    
+        $query = Transaksi::with('detailTransaksi.menu', 'pelanggan', 'pengguna')
+            ->orderBy('tanggal_transaksi', 'desc'); // Urutkan dari tanggal terbaru
+    
+        // Filter berdasarkan tanggal jika ada
+        if ($startDate && $endDate) {
+            $query->whereBetween('tanggal_transaksi', [$startDate, $endDate]);
+        }
+    
+        // Ambil transaksi dengan paginasi
+        $transaksi = $query->paginate(10);
+    
+        // Kirim data transaksi ke view
+        return view('laporan.index', compact('transaksi', 'startDate', 'endDate'));
+    }
 
-public function exportPDF()
-{
-    $transaksi = Transaksi::with('detailTransaksi.menu', 'pelanggan', 'pengguna')->get();
+    // Fungsi untuk mengekspor laporan transaksi ke PDF
+    public function exportPDF(Request $request)
+    {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+        
+        // Query transaksi berdasarkan filter tanggal jika ada
+        $query = Transaksi::with('detailTransaksi.menu', 'pelanggan', 'pengguna');
+        
+        // Filter transaksi berdasarkan rentang tanggal yang diberikan
+        if ($startDate && $endDate) {
+            $query->whereBetween('tanggal_transaksi', [$startDate, $endDate]);
+        }
+        
+        // Ambil transaksi sesuai dengan filter
+        $transaksi = $query->get();
 
-    $pdf = PDF::loadView('laporan.pdf', compact('transaksi'));
-    return $pdf->download('laporan-transaksi.pdf');
-}
-public function detail($id)
-{
-    $transaksi = Transaksi::with('detailTransaksi.menu', 'pelanggan', 'pengguna')->findOrFail($id);
-    return view('laporan.detail', compact('transaksi'));
-}
+        // Membuat PDF dari view laporan
+        $pdf = PDF::loadView('laporan.pdf', compact('transaksi', 'startDate', 'endDate'));
 
+        // Download file PDF
+        return $pdf->download('laporan-transaksi.pdf');
+    }
+
+    // Fungsi untuk menampilkan detail transaksi
+    public function detail($id)
+    {
+        $transaksi = Transaksi::with('detailTransaksi.menu', 'pelanggan', 'pengguna')->findOrFail($id);
+        return view('laporan.detail', compact('transaksi'));
+    }
 }

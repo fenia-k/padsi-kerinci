@@ -21,7 +21,7 @@
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-primary me-2">Filter</button>
                         <a href="{{ route('laporan.index') }}" class="btn btn-secondary me-2">Reset</a>
-                        <a href="{{ route('laporan.export') }}" class="btn btn-success">Export to PDF</a>
+                        <a href="{{ route('laporan.export', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}" class="btn btn-success">Export to PDF</a>
                     </div>
                 </div>
             </form>
@@ -90,7 +90,7 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     .card-header {
-        background-color: #D2B48C; /* Warna header filter transaksi sama dengan tabel */
+        background-color: #D2B48C;
         color: #4A3B30;
     }
     .table th, .table td {
@@ -98,7 +98,7 @@
         padding: 12px 15px;
     }
     .table-header {
-        background-color: #D2B48C; /* Warna header tabel */
+        background-color: #D2B48C;
         color: #4A3B30;
     }
     .table-hover tbody tr:hover {
@@ -135,13 +135,3 @@
         border-color: #5a6268;
     }
 </style>
-
-<!-- Tambahkan Bootstrap Tooltip Script -->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-    });
-</script>
