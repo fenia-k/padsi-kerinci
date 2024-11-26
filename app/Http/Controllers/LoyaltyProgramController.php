@@ -71,8 +71,7 @@ class LoyaltyProgramController extends Controller
      */
     public function edit(LoyaltyProgram $loyaltyProgram)
     {
-        $pelanggan = DataPelanggan::all();
-        return view('loyalty_program.edit', compact('loyaltyProgram', 'pelanggan'));
+        return view('loyalty_program.edit', compact('loyaltyProgram'));
     }
 
     /**
@@ -81,17 +80,11 @@ class LoyaltyProgramController extends Controller
     public function update(Request $request, LoyaltyProgram $loyaltyProgram)
     {
         $request->validate([
-            'id_pelanggan' => 'required|exists:data_pelanggan,id',
-            'kode_referral' => 'required|unique:loyalty_program,kode_referral,' . $loyaltyProgram->id,
-            'batas_loyalty' => 'required|integer|min:1', // Minimum 1 agar batas tidak bisa negatif
+            'batas_loyalty' => 'required|integer|min:0',
         ]);
 
         try {
-            $dataPelanggan = DataPelanggan::findOrFail($request->id_pelanggan);
-
             $loyaltyProgram->update([
-                'id_pelanggan' => $dataPelanggan->id,
-                'kode_referral' => $dataPelanggan->kode_referal,
                 'batas_loyalty' => $request->batas_loyalty,
             ]);
 
@@ -110,7 +103,7 @@ class LoyaltyProgramController extends Controller
             $loyaltyProgram->delete();
             return redirect()->route('loyalty_program.index')->with('success', 'Loyalty Program berhasil dihapus');
         } catch (\Exception $e) {
-            return redirect()->route('loyalty_program.index')->with('error', 'Gagal menghapus Loyalty Program: ' . $e->getMessage());
+            return redirect()->route('loyalty_program.index')->with('error', 'Gagal menghapus Loyalty Program');
         }
     }
 }

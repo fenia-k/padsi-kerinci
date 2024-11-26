@@ -65,7 +65,7 @@ class DataPelangganController extends Controller
                         'used_at' => now(),
                     ]);
 
-                    $dataPelanggan->increment('poin', 10000);
+                    $dataPelanggan->increment('poin', 5000);
                 }
             }
 
