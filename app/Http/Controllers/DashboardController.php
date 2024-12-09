@@ -20,24 +20,28 @@ class DashboardController extends Controller
         $totalProduk = Menu::count();
         $totalLoyaltyProgram = LoyaltyProgram::count();
 
-        // Top Produk Terjual
-        $produkTerlaris = Menu::withCount('detailTransaksi')
-            ->orderBy('detail_transaksi_count', 'desc')
-            ->take(5)
-            ->get();
+        // Total Pendapatan
+        $totalPendapatan = Transaksi::sum('total_harga');  // Menjumlahkan semua total_harga pada tabel Transaksi
 
-        // Transaksi Bulanan
-        $transaksiBulanan = Transaksi::select(
-                DB::raw('strftime("%m", tanggal_transaksi) as bulan'), // Untuk SQLite
-                DB::raw('COUNT(*) as jumlah')
-            )
-            ->groupBy('bulan')
-            ->orderBy('bulan')
-            ->get()
-            ->transform(function ($item) {
-                $item->bulan = date('F', mktime(0, 0, 0, $item->bulan, 10)); // Ubah angka bulan ke nama bulan
-                return $item;
-            });
+        // Top Produk Terjual
+        $produkTerlaris = Menu::withCount('detailTransaksi') // Asumsi ada relasi 'detailTransaksi' pada model Menu
+            ->orderByDesc('detail_transaksi_count')
+            ->take(5)
+            ->get(); 
+
+        // Total Pendapatan Bulanan
+        $pendapatanBulanan = Transaksi::select(
+            DB::raw('MONTH(tanggal_transaksi) as bulan'), // Menggunakan MONTH() untuk MySQL
+            DB::raw('SUM(total_harga) as total_pendapatan') // Menghitung total pendapatan per bulan
+        )
+        ->groupBy(DB::raw('MONTH(tanggal_transaksi)')) // Group berdasarkan bulan
+        ->orderBy('bulan')
+        ->get()
+        ->transform(function ($item) {
+            $item->bulan = date('F', mktime(0, 0, 0, $item->bulan, 10)); // Ubah angka bulan ke nama bulan
+            return $item;
+        });
+
 
         // Loyalty Program Aktif
         $loyaltyAktif = LoyaltyProgram::where('batas_loyalty', '>', 0)->count();
@@ -48,8 +52,9 @@ class DashboardController extends Controller
             'totalTransaksi',
             'totalProduk',
             'totalLoyaltyProgram',
+            'totalPendapatan',  // Menambahkan total pendapatan ke view
             'produkTerlaris',
-            'transaksiBulanan',
+            'pendapatanBulanan', // Menambahkan data pendapatan bulanan ke view
             'loyaltyAktif'
         ));
     }

@@ -48,18 +48,19 @@ class StokController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
+        // Validasi input termasuk cek nama_stok agar tidak duplikat
         $request->validate([
-            'nama_stok' => 'required',
+            'nama_stok' => 'required|unique:stok,nama_stok', // Cek nama_stok agar unik di tabel stok
             'jumlah_stok' => 'required|integer',
         ]);
-
+    
         // Menyimpan data stok baru
         Stok::create($request->all());
-
+    
         // Redirect ke halaman indeks stok dengan pesan sukses
-        return redirect()->route('stok.index')->with('success', 'Stok berhasil ditambahkan');
+        return redirect()->route('stok.index')->with('success', 'Stock has been successfully added.');
     }
+    
 
     /**
      * Show the form for editing the specified resource.
@@ -83,16 +84,25 @@ class StokController extends Controller
     {
         // Validasi input
         $request->validate([
-            'nama_stok' => 'required',
+            'nama_stok' => [
+                'required',
+                function ($attribute, $value, $fail) use ($stok) {
+                    // Jika nama stok berbeda dengan nama yang sudah ada di database dan nama stok sudah digunakan, validasi gagal
+                    if ($value !== $stok->nama_stok && Stok::where('nama_stok', $value)->exists()) {
+                        $fail('The stock name is already in use. Please choose another name.');
+                    }
+                },
+            ],
             'jumlah_stok' => 'required|integer',
         ]);
-
+    
         // Update data stok
-        $stok->update($request->all());
-
+        $stok->update($request->only(['nama_stok', 'jumlah_stok']));
+    
         // Redirect ke halaman indeks stok dengan pesan sukses
-        return redirect()->route('stok.index')->with('success', 'Stok berhasil diperbarui');
+        return redirect()->route('stok.index')->with('success', 'Stock updated successfully');
     }
+    
 
     /**
      * Remove the specified resource from storage.
@@ -106,6 +116,6 @@ class StokController extends Controller
         $stok->delete();
 
         // Redirect ke halaman indeks stok dengan pesan sukses
-        return redirect()->route('stok.index')->with('success', 'Stok berhasil dihapus');
+        return redirect()->route('stok.index')->with('success', 'Stock successfully deleted');
     }
 }

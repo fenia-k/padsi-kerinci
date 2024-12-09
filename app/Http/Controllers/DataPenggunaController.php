@@ -48,7 +48,7 @@ class DataPenggunaController extends Controller
             $this->createUserAccount($dataPengguna);
         }
 
-        return redirect()->route('data_pengguna.index')->with('success', 'Data pengguna dan akun berhasil ditambahkan');
+        return redirect()->route('data_pengguna.index')->with('success', 'User data and account successfully added');
     }
 
     public function edit(DataPengguna $dataPengguna)
@@ -68,13 +68,13 @@ class DataPenggunaController extends Controller
         ]);
 
         $dataPengguna->update($request->all());
-        return redirect()->route('data_pengguna.index')->with('success', 'Data pengguna berhasil diperbarui');
+        return redirect()->route('data_pengguna.index')->with('success', 'User data updated successfully');
     }
 
     public function destroy(DataPengguna $dataPengguna)
     {
         $dataPengguna->delete();
-        return redirect()->route('data_pengguna.index')->with('success', 'Data pengguna berhasil dihapus');
+        return redirect()->route('data_pengguna.index')->with('success', 'User data successfully deleted');
     }
 
     protected function createUserAccount(DataPengguna $dataPengguna)

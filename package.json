@@ -19,5 +19,11 @@
         "sass": "^1.56.1",
         "tailwindcss": "^3.4.14",
         "vite": "^5.0.0"
+    },
+    "dependencies": {
+        "apexcharts": "^4.1.0",
+        "chart.js": "^4.4.7",
+        "sweetalert2": "^11.14.5",
+        "vue-apexcharts": "^1.7.0"
     }
 }

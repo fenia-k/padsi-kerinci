@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             DataPelangganSeeder::class,
             DataPenggunaSeeder::class,
             DiskonSeeder::class,
-            LaporanSeeder::class,
+            // LaporanSeeder::class,
             LoyaltyProgramSeeder::class,
             MenuSeeder::class,
             // RoleSeeder::class,

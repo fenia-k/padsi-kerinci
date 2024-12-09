@@ -30,28 +30,37 @@ class LaporanTransaksiController extends Controller
     }
 
     // Fungsi untuk mengekspor laporan transaksi ke PDF
-    public function exportPDF(Request $request)
-    {
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        
-        // Query transaksi berdasarkan filter tanggal jika ada
-        $query = Transaksi::with('detailTransaksi.menu', 'pelanggan', 'pengguna');
-        
-        // Filter transaksi berdasarkan rentang tanggal yang diberikan
-        if ($startDate && $endDate) {
-            $query->whereBetween('tanggal_transaksi', [$startDate, $endDate]);
-        }
-        
-        // Ambil transaksi sesuai dengan filter
-        $transaksi = $query->get();
-
-        // Membuat PDF dari view laporan
-        $pdf = PDF::loadView('laporan.pdf', compact('transaksi', 'startDate', 'endDate'));
-
-        // Download file PDF
-        return $pdf->download('laporan-transaksi.pdf');
+    // Fungsi untuk mengekspor laporan transaksi ke PDF
+public function exportPDF(Request $request)
+{
+    $startDate = $request->input('start_date');
+    $endDate = $request->input('end_date');
+    
+    // Query transaksi berdasarkan filter tanggal jika ada
+    $query = Transaksi::with('detailTransaksi.menu', 'pelanggan', 'pengguna');
+    
+    // Filter transaksi berdasarkan rentang tanggal yang diberikan
+    if ($startDate && $endDate) {
+        $query->whereBetween('tanggal_transaksi', [$startDate, $endDate]);
     }
+    
+    // Ambil transaksi sesuai dengan filter
+    $transaksi = $query->get();
+
+    // Pastikan $transaksi tidak kosong
+    $totalTransaksi = 0;
+    if ($transaksi->isNotEmpty()) {
+        // Hitung total harga secara manual
+        $totalTransaksi = $transaksi->sum('total_harga');
+    }
+
+    // Membuat PDF dari view laporan
+    $pdf = PDF::loadView('laporan.pdf', compact('transaksi', 'startDate', 'endDate', 'totalTransaksi'));
+
+    // Download file PDF
+    return $pdf->download('laporan-transaksi.pdf');
+}
+
 
     // Fungsi untuk menampilkan detail transaksi
     public function detail($id)

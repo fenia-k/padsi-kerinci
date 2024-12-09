@@ -20,4 +20,11 @@ class Menu extends Model
     {
         return $this->hasMany(DetailTransaksi::class, 'id_menu');
     }
+
+    // Menambahkan Scope untuk Soft Deletes
+    public function scopeActive($query)
+    {
+        return $query->whereNull('deleted_at');
+    }
 }
+

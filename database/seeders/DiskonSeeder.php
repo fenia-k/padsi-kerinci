@@ -15,7 +15,7 @@ class DiskonSeeder extends Seeder
             [
                 'harga_diskon' => 10000,
                 'batas_pemakaian' => 5,
-                'id_diskon' => 'D001',
+                'id' => '1',
                 'id_pelanggan' => 1, // Pastikan ini sesuai dengan id_pelanggan yang ada di tabel pelanggan
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -23,7 +23,7 @@ class DiskonSeeder extends Seeder
             [
                 'harga_diskon' => 5000,
                 'batas_pemakaian' => 10,
-                'id_diskon' => 'D002',
+                'id' => '2',
                 'id_pelanggan' => 2, // Pastikan ini sesuai dengan id_pelanggan yang ada di tabel pelanggan
                 'created_at' => now(),
                 'updated_at' => now(),

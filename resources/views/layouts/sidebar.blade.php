@@ -21,7 +21,7 @@
 
     /* Sidebar link colors */
     aside nav a {
-        color: #D2B48C; /* Teks cokelat muda */
+        color: #e9e1d6; /* Teks cokelat muda */
     }
 
     /* Sidebar logo background */
@@ -34,7 +34,7 @@
     }
 
     aside nav .mb-6 h3 {
-        color: #D2B48C; /* Warna teks header navigation (cokelat muda) */
+        color: #e9e1d6; /* Warna teks header navigation (cokelat muda) */
     }
 
     aside nav a {
@@ -59,9 +59,9 @@
     }
 </style>
 
-<aside class="w-64 h-screen bg-gradient-to-b from-[#D2A679] to-[#B98B5E] text-[#4b3621] flex flex-col fixed top-0 left-0">
+<aside class="w-64 h-screen bg-gradient-to-b from-[#e9e1d6] to-[#B98B5E] text-[#4b3621] flex flex-col fixed top-0 left-0">
     <!-- Logo Section -->
-    <div class="p-4 text-2xl font-bold border-b border-[#A0522D] flex items-center justify-center">
+    <div class="p-4 text-2xl font-bold border-b border-[#e9e1d6] flex items-center justify-center">
         <img src="{{ asset('logo kerinci.jpg') }}" alt="Kerinci Logo" class="w-12 h-12 rounded-full">
     </div>
 
@@ -69,7 +69,7 @@
     <nav class="flex-1 p-4 overflow-y-auto">
         <!-- Dashboard Section -->
         <div class="mb-6">
-            <h3 class="text-xs font-semibold text-[#D2B48C] uppercase tracking-wide mb-1">Dashboard</h3>
+            <h3 class="text-xs font-semibold text-[#e9e1d6] uppercase tracking-wide mb-1">Dashboard</h3>
             <a href="{{ route('dashboard') }}" class="block p-2 rounded {{ Route::currentRouteName() == 'dashboard' ? 'active' : 'inactive' }} flex items-center">
                 <i class="fas fa-tachometer-alt text-sm mr-5"></i>
                 <span>Dashboard</span>
@@ -78,7 +78,7 @@
 
         <!-- Transactions & Reports Section -->
         <div class="mb-6">
-            <h3 class="text-xs font-semibold text-[#D2B48C] uppercase tracking-wide mb-1">Transactions & Reports</h3>
+            <h3 class="text-xs font-semibold text-[#e9e1d6] uppercase tracking-wide mb-1">Transactions & Reports</h3>
             <a href="{{ route('transaksi.index') }}" class="block p-2 rounded {{ Route::currentRouteName() == 'transaksi.index' ? 'active' : 'inactive' }} flex items-center">
                 <i class="fas fa-exchange-alt text-sm mr-5"></i>
                 <span>Transaction</span>
@@ -93,7 +93,7 @@
 
         <!-- Internal Section -->
         <div class="mb-6">
-            <h3 class="text-xs font-semibold text-[#D2B48C] uppercase tracking-wide mb-1">Internal</h3>
+            <h3 class="text-xs font-semibold text-[#e9e1d6] uppercase tracking-wide mb-1">Internal</h3>
             <a href="{{ route('data_pelanggan.index') }}" class="block p-2 rounded {{ Route::currentRouteName() == 'data_pelanggan.index' ? 'active' : 'inactive' }} flex items-center">
                 <i class="fas fa-users text-sm mr-5"></i>
                 <span>Customer</span>
@@ -122,7 +122,7 @@
     <!-- Logout Button -->
     <form method="POST" action="{{ route('logout') }}" class="p-4 border-t ">
         @csrf
-        <button type="submit" class="w-full text-left p-2 rounded bg-[#A0522D] hover:bg-[#8d6348] flex items-center">
+        <button type="submit" class="w-full text-left p-2 rounded flex items-center">
             <i class="fas fa-sign-out-alt text-sm mr-5"></i>
             <span>Logout</span>
         </button>

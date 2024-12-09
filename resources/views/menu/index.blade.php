@@ -2,9 +2,9 @@
 
 @section('content')
 <div class="container mx-auto p-6">
-    <h2 class="text-3xl font-semibold text-[#8B4513] mb-6">Data Menu</h2>
+    <h2 class="text-3xl font-semibold text-[#8B4513] mb-6">Menu Data</h2>
 
-    <!-- Notifikasi Pesan -->
+    <!-- Notification Message -->
     @if (session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {{ session('success') }}
@@ -26,7 +26,7 @@
             </button>
         </form>
         <a href="{{ route('menu.create') }}" class="bg-[#8B4513] hover:bg-[#A0522D] text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out">
-            + Tambah Menu
+            + Add
         </a>
     </div>
 
@@ -49,25 +49,52 @@
                 </div>
                 <div class="menu-buttons flex justify-center gap-4 mt-4">
                     <a href="{{ route('menu.edit', $menu->id) }}" class="menuedit-btn px-4 py-1 bg-[#A0522D] text-white rounded-lg hover:bg-[#8B4513] transition-all">
-                        edit
+                        Update
                     </a>
-                    <form action="{{ route('menu.destroy', $menu->id) }}" method="POST" class="inline-block">
+                    <form action="{{ route('menu.destroy', $menu->id) }}" method="POST" class="inline-block" id="deleteForm{{ $menu->id }}">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="menudelete-btn px-4 py-1 bg-[#8B0000] text-white rounded-lg hover:bg-[#B22222] transition-all"
-                                onclick="return confirm('Apakah Anda yakin ingin menghapus menu ini?')">
-                            delete
+                        <button type="button" class="menudelete-btn px-4 py-1 bg-[#8B0000] text-white rounded-lg hover:bg-[#B22222] transition-all"
+                                onclick="confirmDelete({{ $menu->id }})">
+                            Delete
                         </button>
                     </form>
                 </div>
             </div>
         @empty
-            <p class="col-span-full text-center text-gray-500">Tidak ada data menu yang sesuai dengan pencarian.</p>
+            <p class="col-span-full text-center text-gray-500">No menu data matching your search.</p>
         @endforelse
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4">
+        {{ $menus->links() }} <!-- Pagination links -->
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
+// SweetAlert2 - Confirm Delete
+function confirmDelete(menuId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This menu will be permanently deleted!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Submit the delete form
+            document.getElementById('deleteForm' + menuId).submit();
+        }
+    });
+}
+
+// Auto-submit search on input change
 document.getElementById('searchInput').addEventListener('input', function() {
     clearTimeout(this.delay);
     this.delay = setTimeout(() => {
@@ -78,7 +105,7 @@ document.getElementById('searchInput').addEventListener('input', function() {
 
 <!-- Style -->
 <style>
-     .container {
+    .container {
         background-color: #ffffff;
         padding: 20px;
         border-radius: 10px;
@@ -92,6 +119,7 @@ document.getElementById('searchInput').addEventListener('input', function() {
         background: transparent;
         border: none;
     }
+
     .search-icon:hover {
         background: transparent;
         cursor: pointer;

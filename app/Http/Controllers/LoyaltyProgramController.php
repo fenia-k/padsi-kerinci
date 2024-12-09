@@ -51,18 +51,18 @@ class LoyaltyProgramController extends Controller
 
             // Check if the customer already has a loyalty program
             if (LoyaltyProgram::where('id_pelanggan', $dataPelanggan->id)->exists()) {
-                return redirect()->route('loyalty_program.index')->with('error', 'Pelanggan ini sudah memiliki program loyalti.');
+                return redirect()->route('loyalty_program.index')->with('error', 'These customers already have a loyalty program.');
             }
 
             LoyaltyProgram::create([
                 'id_pelanggan' => $dataPelanggan->id,
-                'kode_referral' => $dataPelanggan->kode_referal,
+                'kode_referal' => $dataPelanggan->kode_referal,
                 'batas_loyalty' => 5, // Set batas loyalty otomatis
             ]);
 
-            return redirect()->route('loyalty_program.index')->with('success', 'Loyalty Program berhasil ditambahkan');
+            return redirect()->route('loyalty_program.index')->with('success', 'Loyalty Program successfully added');
         } catch (\Exception $e) {
-            return redirect()->route('loyalty_program.index')->with('error', 'Gagal menambahkan Loyalty Program: ' . $e->getMessage());
+            return redirect()->route('loyalty_program.index')->with('error', 'Failed to add Loyalty Program: ' . $e->getMessage());
         }
     }
 
@@ -88,9 +88,9 @@ class LoyaltyProgramController extends Controller
                 'batas_loyalty' => $request->batas_loyalty,
             ]);
 
-            return redirect()->route('loyalty_program.index')->with('success', 'Loyalty Program berhasil diperbarui');
+            return redirect()->route('loyalty_program.index')->with('success', 'Loyalty Program successfully updated');
         } catch (\Exception $e) {
-            return redirect()->route('loyalty_program.index')->with('error', 'Gagal memperbarui Loyalty Program: ' . $e->getMessage());
+            return redirect()->route('loyalty_program.index')->with('error', 'Failed to renew Loyalty Program: ' . $e->getMessage());
         }
     }
 
@@ -101,9 +101,9 @@ class LoyaltyProgramController extends Controller
     {
         try {
             $loyaltyProgram->delete();
-            return redirect()->route('loyalty_program.index')->with('success', 'Loyalty Program berhasil dihapus');
+            return redirect()->route('loyalty_program.index')->with('success', 'Loyalty Program successfully deleted');
         } catch (\Exception $e) {
-            return redirect()->route('loyalty_program.index')->with('error', 'Gagal menghapus Loyalty Program');
+            return redirect()->route('loyalty_program.index')->with('error', 'Failed to delete Loyalty Program');
         }
     }
 }

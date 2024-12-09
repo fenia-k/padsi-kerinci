@@ -34,7 +34,7 @@ class DetailTransaksiController extends Controller
 
         // Cek ketersediaan stok
         if ($menu->jumlah_menu < $request->jumlah_pesanan) {
-            return redirect()->back()->withErrors(['jumlah_pesanan' => 'Stok tidak mencukupi untuk produk ' . $menu->nama_menu]);
+            return redirect()->back()->withErrors(['jumlah_pesanan' => 'Insufficient stock for products ' . $menu->nama_menu]);
         }
 
         // Hitung sub_total berdasarkan jumlah_pesanan dan harga_menu
@@ -52,7 +52,7 @@ class DetailTransaksiController extends Controller
             'sub_total' => $sub_total,
         ]);
 
-        return redirect()->route('detail_transaksi.index')->with('success', 'Detail transaksi berhasil ditambahkan');
+        return redirect()->route('detail_transaksi.index')->with('success', 'Transaction details successfully added');
     }
 
     public function edit(DetailTransaksi $detailTransaksi)
@@ -77,7 +77,7 @@ class DetailTransaksiController extends Controller
 
         // Cek ketersediaan stok jika pesanan bertambah
         if ($difference > 0 && $menu->jumlah_menu < $difference) {
-            return redirect()->back()->withErrors(['jumlah_pesanan' => 'Stok tidak mencukupi untuk produk ' . $menu->nama_menu]);
+            return redirect()->back()->withErrors(['jumlah_pesanan' => 'Insufficient stock for products ' . $menu->nama_menu]);
         }
 
         // Kurangi atau tambahkan stok sesuai perbedaan
@@ -95,7 +95,7 @@ class DetailTransaksiController extends Controller
             'sub_total' => $sub_total,
         ]);
 
-        return redirect()->route('detail_transaksi.index')->with('success', 'Detail transaksi berhasil diperbarui');
+        return redirect()->route('detail_transaksi.index')->with('success', 'Transaction details updated successfully');
     }
 
     public function destroy(DetailTransaksi $detailTransaksi)
@@ -107,6 +107,6 @@ class DetailTransaksiController extends Controller
         // Hapus detail transaksi
         $detailTransaksi->delete();
 
-        return redirect ()->route('detail_transaksi.index')->with('success', 'Detail transaksi berhasil dihapus');
+        return redirect ()->route('detail_transaksi.index')->with('success', 'Transaction details successfully deleted');
     }
 }

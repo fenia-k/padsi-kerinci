@@ -10,19 +10,23 @@
         max-width: 1000px;
         margin: auto;
     }
+
     .form-label {
         font-weight: bold;
         color: #495057;
     }
+
     .form-control,
     .form-select {
         border-radius: 8px;
     }
+
     .produk-row {
         display: flex;
         align-items: flex-start;
         gap: 10px;
     }
+
     .img-thumbnail {
         max-height: 150px;
         max-width: 150px;
@@ -30,39 +34,44 @@
         margin-top: 10px;
         display: none;
     }
+
     .error-message {
         color: red;
         font-size: 0.875rem;
         display: none;
     }
+
     #addRow {
         font-size: 14px;
         padding: 8px 12px;
         max-width: 150px;
     }
+
     .menu-container {
         flex: 5;
     }
+
     .jumlah-container {
         flex: 2;
     }
+
     .hapus-container {
         flex: 1;
     }
 </style>
 
 <div class="form-container bg-white shadow p-4 rounded">
-    <h2 class="text-center mb-4 text-primary">Tambah Transaksi Baru</h2>
+    <h2 class="text-center mb-4 text-primary">Add New Transaction</h2>
 
     <!-- Error Notification -->
     @if ($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
     @endif
 
     <form action="{{ route('transaksi.store') }}" method="POST" id="transaksiForm">
@@ -71,8 +80,22 @@
         <div class="row g-3">
             <!-- Tanggal Transaksi -->
             <div class="col-md-12">
-                <label for="tanggal_transaksi" class="form-label">Tanggal Transaksi</label>
-                <input type="date" name="tanggal_transaksi" id="tanggal_transaksi" class="form-control" value="{{ date('Y-m-d') }}" required>
+                <label for="tanggal_transaksi" class="form-label">Transaction Date</label>
+                <input type="date" name="tanggal_transaksi" id="tanggal_transaksi" class="form-control"
+                    value="{{ date('Y-m-d') }}" required>
+            </div>
+
+            <!-- Pelanggan -->
+            <div class="col-md-12">
+                <label for="id_pelanggan" class="form-label">Customer</label>
+                <select name="id_pelanggan" id="id_pelanggan" class="form-select">
+                    <option value="">Select Customer (Optional)</option>
+                    @foreach ($pelanggan as $p)
+                        <option value="{{ $p->id }}" data-poin="{{ $p->poin }}">{{ $p->nama_pelanggan }} - 
+                            {{ $p->poin }} Points</option>
+                    @endforeach
+                </select>
+                <small id="poinDisplay" class="text-muted" style="display: none;">Points: <span id="poinValue">0</span></small>
             </div>
 
             <!-- Produk Dinamis -->
@@ -80,80 +103,77 @@
                 <div class="produk-row mb-3">
                     <!-- Dropdown Produk -->
                     <div class="menu-container">
-                        <label for="produk[0][id_menu]" class="form-label">Produk</label>
+                        <label for="produk[0][id_menu]" class="form-label">Product</label>
                         <select name="produk[0][id_menu]" class="form-select menu-select" required>
-                            <option value="">Pilih Produk</option>
+                            <option value="">Select Product</option>
                             @foreach ($menu as $m)
-                                <option value="{{ $m->id }}" data-harga="{{ $m->harga_menu }}" data-gambar="{{ asset('storage/' . $m->gambar_menu) }}" data-jumlah="{{ $m->jumlah_menu }}">
-                                    {{ $m->nama_menu }} - Rp {{ number_format($m->harga_menu, 0, ',', '.') }} (Stok: {{ $m->jumlah_menu }})
+                                <option value="{{ $m->id }}" data-harga="{{ $m->harga_menu }}"
+                                    data-gambar="{{ asset('storage/' . $m->gambar_menu) }}"
+                                    data-jumlah="{{ $m->jumlah_menu }}">
+                                    {{ $m->nama_menu }} - Rp {{ number_format($m->harga_menu, 0, ',', '.') }} (Stock:
+                                    {{ $m->jumlah_menu }})
                                 </option>
                             @endforeach
                         </select>
                         <!-- Gambar Preview di bawah dropdown -->
-                        <img src="" alt="Gambar Produk" class="menu-preview img-thumbnail mt-2">
+                        <img src="" alt="Product Image" class="menu-preview img-thumbnail mt-2">
                     </div>
                     <!-- Kolom Jumlah -->
                     <div class="jumlah-container">
-                        <label for="produk[0][jumlah]" class="form-label">Jumlah</label>
-                        <input type="number" name="produk[0][jumlah]" class="form-control jumlah-input" min="1" required>
+                        <label for="produk[0][jumlah]" class="form-label">Quantity</label>
+                        <input type="number" name="produk[0][jumlah]" class="form-control jumlah-input" min="1"
+                            required>
                     </div>
                     <!-- Tombol Hapus -->
                     <div class="hapus-container">
                         <label class="form-label d-block">&nbsp;</label>
-                        <button type="button" class="btn btn-danger w-100 remove-row">Hapus</button>
+                        <button type="button" class="btn btn-danger w-100 remove-row">Delete</button>
                     </div>
                 </div>
             </div>
-            <button type="button" id="addRow" class="btn btn-success mb-3">Tambah Produk</button>
+            <button type="button" id="addRow" class="btn btn-success mb-3">Add Product</button>
 
             <!-- Total Harga -->
             <div class="col-md-12">
-                <label for="total_harga" class="form-label">Total Harga</label>
-                <input type="text" name="total_harga" id="total_harga" class="form-control" placeholder="Total harga akan otomatis dihitung" readonly>
+                <label for="total_harga" class="form-label">Total Price</label>
+                <input type="text" name="total_harga" id="total_harga" class="form-control"
+                    placeholder="Total price will be automatically calculated" readonly>
             </div>
 
             <!-- Nominal yang Dibayar -->
             <div class="col-md-6">
-                <label for="nominal" class="form-label">Nominal yang Dibayar</label>
-                <input type="number" name="nominal" id="nominal" class="form-control" placeholder="Masukkan nominal pembayaran (kosongkan jika menggunakan poin)">
+                <label for="nominal" class="form-label">Paid Amount</label>
+                <input type="number" name="nominal" id="nominal" class="form-control"
+                    placeholder="Enter paid amount (leave blank if using points)">
             </div>
 
             <!-- Kembalian -->
             <div class="col-md-6">
-                <label for="kembalian" class="form-label">Kembalian</label>
-                <input type="text" id="kembalian" class="form-control" placeholder="Kembalian akan otomatis dihitung" readonly>
-            </div>
-
-            <!-- Pelanggan -->
-            <div class="col-md-12">
-                <label for="id_pelanggan" class="form-label">Pelanggan</label>
-                <select name="id_pelanggan" id="id_pelanggan" class="form-select">
-                    <option value="">Pilih Pelanggan (Opsional)</option>
-                    @foreach ($pelanggan as $p)
-                        <option value="{{ $p->id }}" data-poin="{{ $p->poin }}">{{ $p->nama_pelanggan }} - {{ $p->poin }} Poin</option>
-                    @endforeach
-                </select>
-                <small id="poinDisplay" class="text-muted" style="display: none;">Poin: <span id="poinValue">0</span></small>
+                <label for="kembalian" class="form-label">Change</label>
+                <input type="text" id="kembalian" class="form-control" placeholder="Change will be automatically calculated"
+                    readonly>
             </div>
 
             <!-- Input Poin yang Digunakan -->
             <div class="col-md-12">
-                <label for="poin_digunakan" class="form-label">Poin yang Digunakan <small>(untuk diskon)</small></label>
-                <input type="number" name="poin_digunakan" id="poin_digunakan" class="form-control" placeholder="Masukkan jumlah poin yang digunakan" min="0" disabled>
-                <p id="poinError" class="error-message">Jumlah poin yang digunakan melebihi jumlah transaksi.</p>
+                <label for="poin_digunakan" class="form-label">Points Used <small>(for discount)</small></label>
+                <input type="number" name="poin_digunakan" id="poin_digunakan" class="form-control"
+                    placeholder="Enter points used" min="0" disabled>
+                <p id="poinError" class="error-message">The number of points used exceeds the transaction total.</p>
             </div>
 
             <!-- Kode Referral -->
             <div class="col-md-12">
-                <label for="kode_referal" class="form-label">Kode Referral <small>(opsional)</small></label>
-                <input type="text" name="kode_referal" id="kode_referal" class="form-control" placeholder="Masukkan kode referral">
+                <label for="kode_referal" class="form-label">Referral Code <small>(optional)</small></label>
+                <input type="text" name="kode_referal" id="kode_referal" class="form-control"
+                    placeholder="Enter referral code">
             </div>
 
             <!-- Kasir -->
             <div class="col-md-12">
-                <label for="id_pengguna" class="form-label">Kasir / Pegawai</label>
+                <label for="id_pengguna" class="form-label">Cashier</label>
                 <select name="id_pengguna" id="id_pengguna" class="form-select" required>
-                    <option value="">Pilih Kasir</option>
+                    <option value="">Select Cashier</option>
                     @foreach ($pengguna as $user)
                         <option value="{{ $user->id }}">{{ $user->nama_pengguna }}</option>
                     @endforeach
@@ -162,8 +182,8 @@
         </div>
 
         <div class="d-flex gap-2 mt-4">
-            <button type="submit" class="btn btn-primary w-100" id="submitButton">Tambah Transaksi</button>
-            <a href="{{ route('transaksi.index') }}" class="btn btn-secondary w-100">Batal</a>
+            <button type="submit" class="btn btn-primary w-100" id="submitButton">Add Transaction</button>
+            <a href="{{ route('transaksi.index') }}" class="btn btn-secondary w-100">Cancel</a>
         </div>
     </form>
 </div>
@@ -172,7 +192,7 @@
     let produkCount = 1;
 
     function calculateTotalHarga() {
-        let totalHarga = 0;
+        let totalHarga = 0; 
         document.querySelectorAll('.produk-row').forEach(row => {
             const harga = parseFloat(row.querySelector('.menu-select option:checked').dataset.harga || 0);
             const jumlahInput = row.querySelector('.jumlah-input');
@@ -205,7 +225,8 @@
         const nominal = parseInt(document.getElementById('nominal').value || 0);
         const kembalian = nominal - total;
 
-        document.getElementById('kembalian').value = kembalian >= 0 ? `Rp ${new Intl.NumberFormat('id-ID').format(kembalian)}` : 'Nominal kurang';
+        document.getElementById('kembalian').value = kembalian >= 0 ?
+            `Rp ${new Intl.NumberFormat('id-ID').format(kembalian)}` : 'Nominal kurang';
     }
 
     function updatePreviewImage(selectElement) {
@@ -292,8 +313,9 @@
             if (poinInput > totalHarga) {
                 document.getElementById('poinError').style.display = 'block';
                 const poinExcess = poinInput - totalHarga;
-                document.getElementById('poin_digunakan').value = totalHarga; // Set poin digunakan sama dengan total harga
-                alert(`Poin berlebih akan dikembalikan: ${poinExcess}`);
+                document.getElementById('poin_digunakan').value =
+                totalHarga; // Set poin digunakan sama dengan total harga
+                alert(`Excess points will be returned: ${poinExcess}`);
             } else {
                 document.getElementById('poinError').style.display = 'none';
             }
@@ -303,7 +325,8 @@
     });
 
     document.getElementById('id_pelanggan').addEventListener('change', () => {
-        const selectedOption = document.getElementById('id_pelanggan').options[document.getElementById('id_pelanggan').selectedIndex];
+        const selectedOption = document.getElementById('id_pelanggan').options[document.getElementById(
+            'id_pelanggan').selectedIndex];
         const poin = parseInt(selectedOption.dataset.poin || 0);
         document.getElementById('poinValue').textContent = poin;
         document.getElementById('poin_digunakan').disabled = false;
@@ -317,7 +340,7 @@
 
         if ((nominal < totalHarga) && (poinDigunakan < totalHarga)) {
             e.preventDefault();
-            alert("Nominal pembayaran atau poin yang digunakan harus mencukupi total harga transaksi.");
+            alert("The payment amount or points used must be sufficient for the total transaction price.");
         }
     });
 </script>

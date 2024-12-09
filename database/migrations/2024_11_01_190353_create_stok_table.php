@@ -12,7 +12,7 @@ class CreateStokTable extends Migration
             $table->id(); // Auto-increment ID
             $table->string('nama_stok');
             $table->integer('jumlah_stok');
-            $table->decimal('harga_menu', 10, 2);
+            // $table->decimal('harga_menu', 10, 2);
             $table->timestamps();
             $table->softDeletes();
         });

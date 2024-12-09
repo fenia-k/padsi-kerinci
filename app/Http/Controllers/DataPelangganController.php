@@ -47,7 +47,7 @@ class DataPelangganController extends Controller
             $dataPelanggan->save();
 
             LoyaltyProgram::create([
-                'kode_referral' => $kodeReferal,
+                'kode_referal' => $kodeReferal,
                 'batas_loyalty' => 5,
                 'id_pelanggan' => $dataPelanggan->id,
             ]);
@@ -69,9 +69,9 @@ class DataPelangganController extends Controller
                 }
             }
 
-            return redirect()->route('data_pelanggan.index')->with('success', 'Data pelanggan berhasil ditambahkan dengan kode referral: ' . $kodeReferal);
+            return redirect()->route('data_pelanggan.index')->with('success', 'Customer data successfully added with referral code: ' . $kodeReferal);
         } catch (\Exception $e) {
-            return redirect()->route('data_pelanggan.index')->with('error', 'Gagal menambahkan data pelanggan: ' . $e->getMessage());
+            return redirect()->route('data_pelanggan.index')->with('error', 'Failed to add customer data: ' . $e->getMessage());
         }
     }
 
@@ -90,9 +90,9 @@ class DataPelangganController extends Controller
 
         try {
             $dataPelanggan->update($request->all());
-            return redirect()->route('data_pelanggan.index')->with('success', 'Data pelanggan berhasil diperbarui');
+            return redirect()->route('data_pelanggan.index')->with('success', 'Customer data updated successfully');
         } catch (\Exception $e) {
-            return redirect()->route('data_pelanggan.index')->with('error', 'Gagal memperbarui data pelanggan: ' . $e->getMessage());
+            return redirect()->route('data_pelanggan.index')->with('error', 'Failed to update customer data: ' . $e->getMessage());
         }
     }
 
@@ -100,9 +100,9 @@ class DataPelangganController extends Controller
     {
         try {
             $dataPelanggan->delete();
-            return redirect()->route('data_pelanggan.index')->with('success', 'Data pelanggan berhasil dihapus');
+            return redirect()->route('data_pelanggan.index')->with('success', 'Customer data successfully deleted');
         } catch (\Exception $e) {
-            return redirect()->route('data_pelanggan.index')->with('error', 'Gagal menghapus data pelanggan: ' . $e->getMessage());
+            return redirect()->route('data_pelanggan.index')->with('error', 'Failed to delete customer data: ' . $e->getMessage());
         }
     }
 }

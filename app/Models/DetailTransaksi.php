@@ -23,9 +23,12 @@ class DetailTransaksi extends Model
     {
         return $this->belongsTo(Transaksi::class, 'id_transaksi');
     }
-
+    
     public function menu()
     {
-        return $this->belongsTo(Menu::class, 'id_menu');
+        return $this->belongsTo(Menu::class, 'id_menu')->withDefault([
+            'nama_menu' => 'Menu Tidak Ditemukan'  // Nilai default jika menu tidak ditemukan
+        ]);
     }
+    
 }

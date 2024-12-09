@@ -32,4 +32,15 @@ class DataPelanggan extends Model
     {
         return $this->hasMany(Transaksi::class, 'id_pelanggan');
     }
+
+    /**
+     * Menghapus pelanggan beserta data loyalti terkait secara permanen
+     */
+    protected static function booted()
+    {
+        static::deleting(function ($pelanggan) {
+            // Menghapus data loyalti terkait secara permanen
+            $pelanggan->loyaltyProgram()->delete(); // Pastikan ini menghapus data loyalti
+        });
+    }
 }

@@ -10,7 +10,7 @@ class CreateLoyaltyProgramTable extends Migration
     {
         Schema::create('loyalty_program', function (Blueprint $table) {
             $table->id(); // Auto-increment ID
-            $table->string('kode_referral', 5)->unique(); // Kode referral dengan panjang 5 karakter dan unique
+            $table->string('kode_referal', 10)->unique(); // Kode referral dengan panjang 5 karakter dan unique
             $table->integer('batas_loyalty')->default(5); // Batas loyalty default 5x
             $table->decimal('diskon', 10, 2)->default(5000.00); // Diskon default Rp 5.000,00
             $table->unsignedBigInteger('id_pelanggan'); // Foreign key ke DataPelanggan

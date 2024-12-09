@@ -12,7 +12,7 @@ class LoyaltyProgram extends Model
     protected $table = 'loyalty_program';
 
     protected $fillable = [
-        'kode_referral',
+        'kode_referal',
         'batas_loyalty',
         'id_pelanggan',
     ];
@@ -32,7 +32,7 @@ class LoyaltyProgram extends Model
      */
     public function transaksi()
     {
-        return $this->hasMany(Transaksi::class, 'kode_referal', 'kode_referral');
+        return $this->hasMany(Transaksi::class, 'kode_referal', 'kode_referal');
     }
 
     /**

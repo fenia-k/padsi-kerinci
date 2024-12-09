@@ -18,31 +18,31 @@ class DataPelangganSeeder extends Seeder
         // Tambahkan data dummy untuk data pelanggan
         DB::table('data_pelanggan')->insert([
             [
-                'id_pelanggan' => 1,
+                'id' => 1,
                 'nama_pelanggan' => 'Ahmad Zaki',
                 'alamat_pelanggan' => 'Jl. Kebon Jeruk No.12, Jakarta',
                 'noHP_pelanggan' => '081234567890'
             ],
             [
-                'id_pelanggan' => 2,
+                'id' => 2,
                 'nama_pelanggan' => 'Dewi Kartika',
                 'alamat_pelanggan' => 'Jl. Merpati No.5, Bandung',
                 'noHP_pelanggan' => '081298765432'
             ],
             [
-                'id_pelanggan' => 3,
+                'id' => 3,
                 'nama_pelanggan' => 'Siti Rahmawati',
                 'alamat_pelanggan' => 'Jl. Anggrek No.2, Surabaya',
                 'noHP_pelanggan' => '082134567890'
             ],
             [
-                'id_pelanggan' => 4,
+                'id' => 4,
                 'nama_pelanggan' => 'Budi Santoso',
                 'alamat_pelanggan' => 'Jl. Pahlawan No.6, Yogyakarta',
                 'noHP_pelanggan' => '083245678910'
             ],
             [
-                'id_pelanggan' => 5,
+                'id' => 5,
                 'nama_pelanggan' => 'Indra Wijaya',
                 'alamat_pelanggan' => 'Jl. Mangga No.3, Medan',
                 'noHP_pelanggan' => '084356789123'
